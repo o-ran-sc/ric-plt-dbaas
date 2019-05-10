@@ -16,14 +16,26 @@
 FROM ubuntu:latest
 
 # Install redis
-RUN apt-get update && \
+RUN apt update && \
     apt install -y redis-server && \
-    apt-get clean
+    apt clean
+
+# Install Redis modules
+RUN apt install -y build-essential && \
+    apt install -y automake && \
+    apt install -y libtool && \
+    apt clean
+COPY ./redismodule ./redismodule
+WORKDIR /redismodule
+RUN ./autogen.sh && \
+    ./configure && \
+    make install -j
 
 # Create suitable configuration file
 RUN sed -i 's/^\(bind .*\)$/# \1/' /etc/redis/redis.conf && \
     sed -i 's/^\(daemonize .*\)$/# \1/' /etc/redis/redis.conf && \
-    sed 's/^protected-mode yes/protected-mode no/' -i /etc/redis/redis.conf
+    sed 's/^protected-mode yes/protected-mode no/' -i /etc/redis/redis.conf && \
+    echo 'loadmodule /usr/local/libexec/redismodule/libredismodule.so' >> /etc/redis/redis.conf
 
 EXPOSE 6379
 
