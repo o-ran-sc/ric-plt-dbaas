@@ -1,0 +1,223 @@
+# Introduction
+
+This subdirectory provides implementation for the commands which are implemented
+as a [Redis modules](https://redis.io/topics/modules-intro).
+
+# Commands
+
+## SETIE key value oldvalue [expiration EX seconds|PX milliseconds]
+
+Time complexity: O(1) + O(1)
+
+Checks a String 'key' for 'oldvalue' equality and set key for 'value' with
+optional expired.
+
+```
+Example:
+
+redis> get mykey
+(nil)
+redis> setie mykey "Hello again" "Hello"
+(nil)
+
+redis> set mykey "Hello"
+OK
+redis> get mykey
+"Hello"
+redis> setie mykey "Hello again" "Hello"
+"OK"
+redis> get mykey
+"Hello again"
+redis> setie mykey "Hello 2" "Hello"
+(nil)
+redis> get mykey
+"Hello again"
+redis> setie mykey "Hello 2" "Hello again" ex 100
+"OK"
+redis> ttl mykey
+(integer) 96
+redis> get mykey
+"Hello 2"
+```
+
+## SETNE key value oldvalue [expiration EX seconds|PX milliseconds]
+
+Time complexity: O(1) + O(1)
+
+Checks a String 'key' for 'oldvalue' not equality and set key for 'value' with optional expired.
+
+Example:
+
+```
+redis> get mykey
+(nil)
+redis> setne mykey "Hello again" "Hello"
+"OK"
+redis> get mykey
+"Hello again"
+redis> setne mykey "Hello 2" "Hello again"
+(nil)
+redis> setne mykey "Hello 2" "Hello"
+"OK"
+redis> get mykey
+"Hello 2"
+redis> setne mykey "Hello 3" "Hello" ex 100
+"OK"
+redis> get mykey
+"Hello 3"
+redis> ttl mykey
+(integer) 93
+```
+
+## DELIE key oldvalue
+
+Time complexity: O(1) + O(1)
+
+Checks a String 'key' for 'oldvalue' equality and delete the key.
+
+```
+Example:
+redis> get mykey
+(nil)
+redis> set mykey "Hello"
+"OK"
+redis> get mykey
+"Hello"
+redis> delie mykey "Hello again"
+(integer) 0
+redis> get mykey
+"Hello"
+redis> delie mykey "Hello"
+(integer) 1
+redis> get mykey
+(nil)
+```
+
+## DELNE key oldvalue
+
+Time complexity: O(1) + O(1)
+
+Checks a String 'key' for 'oldvalue' not equality and delete the key.
+
+```
+Example:
+redis> get mykey
+(nil)
+redis> set mykey "Hello"
+"OK"
+redis> get mykey
+"Hello"
+redis> delne mykey "Hello"
+(integer) 0
+redis> get mykey
+"Hello"
+redis> delne mykey "Hello again"
+(integer) 1
+redis> get mykey
+(nil)
+```
+
+## MSETPUB key value [key value...] channel message
+
+Time complexity: O(N) where N is the number of keys to set + O(N+M) where N is the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+
+Set the given keys to their respective values and post a message to the given channel
+
+## SETXXPUB key value channel message
+
+Time complexity: O(1) + O(1) + O(N+M) where N is the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+
+Set key to hold string value if key already exist and post a message to the given channel if set key value successfully
+
+## SETNXPUB key value channel message
+
+Time complexity: O(1) + O(1) + O(N+M) where N is the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+
+Set key to hold string value if key does not exist and post a message to the given channel if set key value successfully
+
+## SETIEPUB key value oldvalue channel message
+
+Time complexity: O(1) + O(1) + O(1) + O(N+M) where N is the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+
+Checks a String 'key' for 'oldvalue' equality and set key for 'value'  and post a message to the given channel if set key value successfully
+
+## SETNEPUB key value oldvalue channel message
+
+Time complexity: O(1) + O(1) + O(1) + O(N+M) where N is the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+
+Checks a String 'key' for 'oldvalue' not equality and set key for 'value'  and post a message to the given channel if set key value successfully
+
+## DELPUB key [key...] channel message
+
+Time complexity: O(N) where N is the number of keys that will be removed + O(N+M) where N is the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+
+Removes the specified keys and post a message to the given channel if delete key successfully(return >0)
+
+## DELIEPUB key oldvalue channel message
+
+ime complexity: O(1) + O(1) + O(1) + O(N+M) where N is the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+
+Checks a String 'key' for 'oldvalue' equality and delete the key and post a message to the given channel if delete key successfully(return 1)
+
+## DELNEPUB key oldvalue channel message
+
+Time complexity: O(1) + O(1) + O(1) + O(N+M) where N is the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+
+Checks a String 'key' for 'oldvalue' not equality and delete the key and post a message to the given channel if delete key successfully(return 1)
+
+## NGET pattern
+
+Time complexity: O(N) with N being the number of keys in the instance + O(N) where N is the number of keys to retrieve
+
+Returns all key-value pairs matching pattern.
+
+```
+example:
+
+redis> nget mykey*
+(empty list or set)
+
+redis> set mykey1 "myvalue1"
+OK
+redis> set mykey2 "myvalue2"
+OK
+redis> set mykey3 "myvalue3"
+OK
+redis> set mykey4 "myvalue4"
+OK
+redis> nget mykey*
+1) "mykey2"
+2) "myvalue2"
+3) "mykey1"
+4) "myvalue1"
+5) "mykey4"
+6) "myvalue4"
+7) "mykey3"
+8) "myvalue3"
+```
+
+## NDEL pattern
+
+Time complexity: O(N) with N being the number of keys in the instance + O(N) where N is the number of keys that will be removed
+
+Remove all key-value pairs matching pattern.
+
+```
+example:
+
+redis> nget mykey*
+1) "mykey2"
+2) "myvalue2"
+3) "mykey1"
+4) "myvalue1"
+5) "mykey4"
+6) "myvalue4"
+7) "mykey3"
+8) "myvalue3"
+
+redis> ndel mykey*
+(integer) 4
+
+redis> ndel mykey*
+(integer) 0
+```
