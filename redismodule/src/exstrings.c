@@ -356,6 +356,35 @@ int SetPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
     return setPubStringCommon(ctx, &setParams, &pubParams);
 }
 
+int SetMPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
+{
+    if (argc < 7 || (argc % 2) == 0)
+        return RedisModule_WrongArity(ctx);
+
+    long long setPairsCount, pubPairsCount;
+    RedisModule_StringToLongLong(argv[1], &setPairsCount);
+    RedisModule_StringToLongLong(argv[2], &pubPairsCount);
+    if (setPairsCount < 1 || pubPairsCount < 1)
+        return RedisModule_ReplyWithError(ctx, "ERR SET_PAIR_COUNT and PUB_PAIR_COUNT must be greater than zero");
+
+    long long setLen, pubLen;
+    setLen = 2*setPairsCount;
+    pubLen = 2*pubPairsCount;
+    if (setLen + pubLen + 3 != argc)
+        return RedisModule_ReplyWithError(ctx, "ERR SET_PAIR_COUNT or PUB_PAIR_COUNT do not match the total pair count");
+
+    SetParams setParams = {
+                           .key_val_pairs = argv + 3,
+                           .length = setLen
+                          };
+    PubParams pubParams = {
+                           .channel_msg_pairs = argv + 3 + setParams.length,
+                           .length = pubLen
+                          };
+
+    return setPubStringCommon(ctx, &setParams, &pubParams);
+}
+
 int setIENEPubStringCommon(RedisModuleCtx *ctx, RedisModuleString **argv, int argc, int flag)
 {
     if (argc < 6 || (argc % 2) != 0)
@@ -575,6 +604,10 @@ int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) 
 
     if (RedisModule_CreateCommand(ctx,"msetpub",
         SetPub_RedisCommand,"write deny-oom",1,1,1) == REDISMODULE_ERR)
+        return REDISMODULE_ERR;
+
+    if (RedisModule_CreateCommand(ctx,"msetmpub",
+        SetMPub_RedisCommand,"write deny-oom pubsub",1,1,1) == REDISMODULE_ERR)
         return REDISMODULE_ERR;
 
     if (RedisModule_CreateCommand(ctx,"setiepub",
