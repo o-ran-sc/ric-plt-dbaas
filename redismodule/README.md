@@ -123,29 +123,29 @@ Time complexity: O(N) where N is the number of keys to set + O(N+M) where N is t
 
 Set the given keys to their respective values and post a message to the given channel
 
-## SETXXPUB key value channel message
+## SETXXPUB key value channel message [channel message...]
 
-Time complexity: O(1) + O(1) + O(N+M) where N is the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+Time complexity: O(1) + O(1) + O(N_1+M) [ + O(N_2+M) + ... ] where N_i are the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client).
 
-Set key to hold string value if key already exist and post a message to the given channel if set key value successfully
+Set key to hold string value if key already exists and post given messages to the corresponding channels if key value was set successfully
 
-## SETNXPUB key value channel message
+## SETNXPUB key value channel message [channel message...]
 
-Time complexity: O(1) + O(1) + O(N+M) where N is the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+Time complexity: O(1) + O(1) + O(N_1+M) [ + O(N_2+M) + ... ] where N_i are the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client).
 
-Set key to hold string value if key does not exist and post a message to the given channel if set key value successfully
+Set key to hold string value if key does not exist and post given messages to the corresponding channels if key value was set successfully
 
-## SETIEPUB key value oldvalue channel message
+## SETIEPUB key value oldvalue channel message [channel message...]
 
-Time complexity: O(1) + O(1) + O(1) + O(N+M) where N is the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+Time complexity: O(1) + O(1) + O(1) + O(N_1+M) [ + O(N_2+M) + ... ] where N_i are the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client).
 
-Checks a String 'key' for 'oldvalue' equality and set key for 'value'  and post a message to the given channel if set key value successfully
+If the string corresponding to 'key' is equal to 'oldvalue' then set key for 'value' and post given messages to the corresponding channels if key value was set successfully
 
-## SETNEPUB key value oldvalue channel message
+## SETNEPUB key value oldvalue channel message [channel message...]
 
-Time complexity: O(1) + O(1) + O(1) + O(N+M) where N is the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+Time complexity: O(1) + O(1) + O(1) + O(N_1+M) [ + O(N_2+M) + ... ] where N_i are the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client).
 
-Checks a String 'key' for 'oldvalue' not equality and set key for 'value'  and post a message to the given channel if set key value successfully
+If the string corresponding to 'key' is not equal to 'oldvalue' then set key for 'value' and post given messages to the corresponding channels if key value was set successfully
 
 ## DELPUB key [key...] channel message
 
