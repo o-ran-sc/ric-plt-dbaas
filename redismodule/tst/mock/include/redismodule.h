@@ -361,6 +361,7 @@ int RedisModule_ReplyWithNull(RedisModuleCtx *ctx);
 int RedisModule_ReplyWithCallReply(RedisModuleCtx *ctx, RedisModuleCallReply *reply);
 const char *RedisModule_CallReplyStringPtr(RedisModuleCallReply *reply, size_t *len);
 RedisModuleString *RedisModule_CreateStringFromCallReply(RedisModuleCallReply *reply);
+int RedisModule_StringToLongLong(const RedisModuleString *str, long long *ll);
 
 int RedisModule_KeyType(RedisModuleKey *kp);
 void RedisModule_CloseKey(RedisModuleKey *kp);

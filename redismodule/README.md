@@ -123,6 +123,12 @@ Time complexity: O(N) where N is the number of keys to set + O(N+M) where N is t
 
 Set the given keys to their respective values and post a message to the given channel
 
+## MSETMPUB number_of_key_value_pairs number_of_channel_message_pairs key value [ key value ... ] channel message [ channel message ... ]
+
+Time complexity: O(N) where N is the number of keys to set + O(N_1+M) [ + O(N_2+M) + ... ] where N_i are the number of clients subscribed to the corresponding receiving channel and M is the total number of subscribed patterns (by any client)
+
+Set the given keys to their respective values and post messages to their respective channels
+
 ## SETXXPUB key value channel message [channel message...]
 
 Time complexity: O(1) + O(1) + O(N_1+M) [ + O(N_2+M) + ... ] where N_i are the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client).

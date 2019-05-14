@@ -463,6 +463,28 @@ TEST(exstring, setpub)
     delete []redisStrVec;
 }
 
+TEST(exstring, setmpub)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[11]);
+
+    for (int i = 0 ; i < 11 ; ++i)
+        redisStrVec[i] = (RedisModuleString *)1;
+
+    mock().setData("RedisModule_OpenKey_have", 1);
+    mock().setData("RedisModule_KeyType_str", 1);
+    mock().setData("RedisModule_String_same", 1);
+    mock().setData("RedisModule_CallReplyType_null", 1);
+    mock().setData("RedisModule_StringToLongLongCallCount", 0);
+    mock().setData("RedisModule_StringToLongLongCall_1", 2);
+    mock().setData("RedisModule_StringToLongLongCall_2", 2);
+
+    int ret = SetMPub_RedisCommand(&ctx, redisStrVec, 11);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
+    mock().checkExpectations();
+    delete []redisStrVec;
+}
+
 TEST(exstring, setxxpub)
 {
     RedisModuleCtx ctx;
@@ -570,6 +592,14 @@ TEST(exstring, setpub_command_parameter_number_incorrect)
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
     ret = 0;
+    ret = SetMPub_RedisCommand(&ctx, 0, 2);
+    CHECK_EQUAL(ret, REDISMODULE_ERR);
+
+    ret = 0;
+    ret = SetMPub_RedisCommand(&ctx, 0, 8);
+    CHECK_EQUAL(ret, REDISMODULE_ERR);
+
+    ret = 0;
     ret = SetXXPub_RedisCommand(&ctx, 0, 3);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
@@ -649,6 +679,193 @@ TEST(exstring, setpub_command_no_key_replystr)
     CHECK_EQUAL(mock().getData("MSET").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 2);
+
+    delete []redisStrVec;
+
+}
+
+TEST(exstring, setmpub_command_no_key_replynull)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[9]);
+
+    redisStrVec[0] = (RedisModuleString *)0;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)2;
+    redisStrVec[3] = (RedisModuleString *)3;
+    redisStrVec[4] = (RedisModuleString *)4;
+    redisStrVec[5] = (RedisModuleString *)5;
+    redisStrVec[6] = (RedisModuleString *)6;
+    redisStrVec[7] = (RedisModuleString *)7;
+    redisStrVec[8] = (RedisModuleString *)8;
+
+    mock().setData("RedisModule_KeyType_empty", 1);
+    mock().setData("RedisModule_CallReplyType_null", 1);
+    mock().setData("RedisModule_StringToLongLongCall_1", 1);
+    mock().setData("RedisModule_StringToLongLongCall_2", 2);
+
+    int ret = SetMPub_RedisCommand(&ctx, redisStrVec, 9);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
+    mock().checkExpectations();
+    CHECK_EQUAL(0, mock().getData("GET").getIntValue());
+    CHECK_EQUAL(1, mock().getData("MSET").getIntValue());
+    CHECK_EQUAL(0, mock().getData("PUBLISH").getIntValue());
+    CHECK_EQUAL(1, mock().getData("RedisModule_FreeCallReply").getIntValue());
+
+    delete []redisStrVec;
+
+}
+
+TEST(exstring, setmpub_command_negative_key_val_count)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[7]);
+
+    redisStrVec[0] = (RedisModuleString *)0;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)2;
+    redisStrVec[3] = (RedisModuleString *)3;
+    redisStrVec[4] = (RedisModuleString *)4;
+    redisStrVec[5] = (RedisModuleString *)5;
+    redisStrVec[6] = (RedisModuleString *)6;
+
+    mock().setData("RedisModule_KeyType_empty", 1);
+    mock().setData("RedisModule_CallReplyType_str", 1);
+    mock().setData("RedisModule_StringToLongLongCall_1", -1);
+    mock().setData("RedisModule_StringToLongLongCall_2", 1);
+
+    int ret = SetMPub_RedisCommand(&ctx, redisStrVec, 7);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
+    mock().checkExpectations();
+    CHECK_EQUAL(0, mock().getData("GET").getIntValue());
+    CHECK_EQUAL(0, mock().getData("MSET").getIntValue());
+    CHECK_EQUAL(0, mock().getData("PUBLISH").getIntValue());
+    CHECK_EQUAL(1, mock().getData("RedisModule_ReplyWithError").getIntValue());
+    CHECK_EQUAL(0, mock().getData("RedisModule_FreeCallReply").getIntValue());
+
+    delete []redisStrVec;
+
+}
+
+TEST(exstring, setmpub_command_negative_chan_msg_count)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[7]);
+
+    redisStrVec[0] = (RedisModuleString *)0;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)2;
+    redisStrVec[3] = (RedisModuleString *)3;
+    redisStrVec[4] = (RedisModuleString *)4;
+    redisStrVec[5] = (RedisModuleString *)5;
+    redisStrVec[6] = (RedisModuleString *)6;
+
+    mock().setData("RedisModule_KeyType_empty", 1);
+    mock().setData("RedisModule_CallReplyType_str", 1);
+    mock().setData("RedisModule_StringToLongLongCall_1", 1);
+    mock().setData("RedisModule_StringToLongLongCall_2", -1);
+
+    int ret = SetMPub_RedisCommand(&ctx, redisStrVec, 7);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
+    mock().checkExpectations();
+    CHECK_EQUAL(0, mock().getData("GET").getIntValue());
+    CHECK_EQUAL(0, mock().getData("MSET").getIntValue());
+    CHECK_EQUAL(0, mock().getData("PUBLISH").getIntValue());
+    CHECK_EQUAL(1, mock().getData("RedisModule_ReplyWithError").getIntValue());
+    CHECK_EQUAL(0, mock().getData("RedisModule_FreeCallReply").getIntValue());
+
+    delete []redisStrVec;
+
+}
+
+TEST(exstring, setmpub_command_invalid_total_count)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[7]);
+
+    redisStrVec[0] = (RedisModuleString *)0;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)2;
+    redisStrVec[3] = (RedisModuleString *)3;
+    redisStrVec[4] = (RedisModuleString *)4;
+    redisStrVec[5] = (RedisModuleString *)5;
+    redisStrVec[6] = (RedisModuleString *)6;
+
+    mock().setData("RedisModule_KeyType_empty", 1);
+    mock().setData("RedisModule_CallReplyType_str", 1);
+    mock().setData("RedisModule_StringToLongLongCall_1", 100);
+    mock().setData("RedisModule_StringToLongLongCall_2", 100);
+
+    int ret = SetMPub_RedisCommand(&ctx, redisStrVec, 7);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
+    mock().checkExpectations();
+    CHECK_EQUAL(0, mock().getData("GET").getIntValue());
+    CHECK_EQUAL(0, mock().getData("MSET").getIntValue());
+    CHECK_EQUAL(0, mock().getData("PUBLISH").getIntValue());
+    CHECK_EQUAL(1, mock().getData("RedisModule_ReplyWithError").getIntValue());
+    CHECK_EQUAL(0, mock().getData("RedisModule_FreeCallReply").getIntValue());
+
+    delete []redisStrVec;
+
+}
+
+TEST(exstring, setmpub_command_set)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[7]);
+
+    redisStrVec[0] = (RedisModuleString *)0;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)2;
+    redisStrVec[3] = (RedisModuleString *)3;
+    redisStrVec[4] = (RedisModuleString *)4;
+    redisStrVec[5] = (RedisModuleString *)5;
+    redisStrVec[6] = (RedisModuleString *)6;
+
+    mock().setData("RedisModule_KeyType_empty", 1);
+    mock().setData("RedisModule_CallReplyType_str", 1);
+    mock().setData("RedisModule_StringToLongLongCall_1", 1);
+    mock().setData("RedisModule_StringToLongLongCall_2", 1);
+
+    int ret = SetMPub_RedisCommand(&ctx, redisStrVec, 7);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
+    mock().checkExpectations();
+    CHECK_EQUAL(0, mock().getData("GET").getIntValue());
+    CHECK_EQUAL(1, mock().getData("MSET").getIntValue());
+    CHECK_EQUAL(1, mock().getData("PUBLISH").getIntValue());
+    CHECK_EQUAL(2, mock().getData("RedisModule_FreeCallReply").getIntValue());
+
+    delete []redisStrVec;
+
+}
+
+TEST(exstring, setmpub_command_set_multipub)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[9]);
+
+    redisStrVec[0] = (RedisModuleString *)0;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)2;
+    redisStrVec[3] = (RedisModuleString *)3;
+    redisStrVec[4] = (RedisModuleString *)4;
+    redisStrVec[5] = (RedisModuleString *)5;
+    redisStrVec[6] = (RedisModuleString *)6;
+    redisStrVec[7] = (RedisModuleString *)7;
+    redisStrVec[8] = (RedisModuleString *)8;
+
+    mock().setData("RedisModule_KeyType_empty", 1);
+    mock().setData("RedisModule_CallReplyType_str", 1);
+    mock().setData("RedisModule_StringToLongLongCall_1", 1);
+    mock().setData("RedisModule_StringToLongLongCall_2", 2);
+
+    int ret = SetMPub_RedisCommand(&ctx, redisStrVec, 9);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
+    mock().checkExpectations();
+    CHECK_EQUAL(0, mock().getData("GET").getIntValue());
+    CHECK_EQUAL(1, mock().getData("MSET").getIntValue());
+    CHECK_EQUAL(2, mock().getData("PUBLISH").getIntValue());
+    CHECK_EQUAL(3, mock().getData("RedisModule_FreeCallReply").getIntValue());
 
     delete []redisStrVec;
 

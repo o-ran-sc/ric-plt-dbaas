@@ -95,7 +95,7 @@ RedisModuleCallReply *RedisModule_Call(RedisModuleCtx *ctx, const char *cmdname,
     else if (!strcmp(cmdname, "UNLINK"))
         mock().setData("UNLINK", 1);
     else if (!strcmp(cmdname, "PUBLISH"))
-        mock().setData("PUBLISH", 1);
+        mock().setData("PUBLISH", mock().getData("PUBLISH").getIntValue() + 1);
     else if (!strcmp(cmdname, "KEYS"))
         mock().setData("KEYS", 1);
     else if (!strcmp(cmdname, "MGET"))
@@ -289,3 +289,20 @@ int RedisModule_ReplyWithArray(RedisModuleCtx *ctx, long len)
     return REDISMODULE_OK;
 }
 
+int RedisModule_StringToLongLong(const RedisModuleString *str, long long *ll)
+{
+    (void) str;
+    int call_no = mock().getData("RedisModule_StringToLongLongCallCount").getIntValue();
+    switch(call_no) {
+        case 0:
+            *ll = mock().getData("RedisModule_StringToLongLongCall_1").getIntValue();
+            break;
+        case 1:
+            *ll = mock().getData("RedisModule_StringToLongLongCall_2").getIntValue();
+            break;
+        default:
+            *ll = mock().getData("RedisModule_StringToLongLongCallDefault").getIntValue();
+    }
+    mock().setData("RedisModule_StringToLongLongCallCount", call_no + 1);
+    return REDISMODULE_OK;
+}
