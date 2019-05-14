@@ -457,7 +457,6 @@ TEST(exstring, setpub)
     mock().setData("RedisModule_String_same", 1);
     mock().setData("RedisModule_CallReplyType_null", 1);
 
-    mock().expectOneCall("RedisModule_CloseKey");
     int ret = SetPub_RedisCommand(&ctx, redisStrVec,  5);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
@@ -562,27 +561,44 @@ TEST(exstring, setpub_command_parameter_number_incorrect)
 {
     RedisModuleCtx ctx;
     int ret = 0;
-    ret = setPubStringGenericCommand(&ctx, 0, 2, OBJ_OP_NO);
+
+    ret = SetPub_RedisCommand(&ctx, 0, 2);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
     ret = 0;
-    ret = setPubStringGenericCommand(&ctx, 0, 8, OBJ_OP_NO);
+    ret = SetPub_RedisCommand(&ctx, 0, 8);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
     ret = 0;
-    ret = setPubStringGenericCommand(&ctx, 0, 3, OBJ_OP_XX);
+    ret = SetXXPub_RedisCommand(&ctx, 0, 3);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
     ret = 0;
-    ret = setPubStringGenericCommand(&ctx, 0, 6, OBJ_OP_NX);
+    ret = SetXXPub_RedisCommand(&ctx, 0, 6);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
     ret = 0;
-    ret = setPubStringGenericCommand(&ctx, 0, 4, OBJ_OP_IE);
+    ret = SetNXPub_RedisCommand(&ctx, 0, 3);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
     ret = 0;
-    ret = setPubStringGenericCommand(&ctx, 0, 8, OBJ_OP_NE);
+    ret = SetNXPub_RedisCommand(&ctx, 0, 6);
+    CHECK_EQUAL(ret, REDISMODULE_ERR);
+
+    ret = 0;
+    ret = SetIEPub_RedisCommand(&ctx, 0, 4);
+    CHECK_EQUAL(ret, REDISMODULE_ERR);
+
+    ret = 0;
+    ret = SetIEPub_RedisCommand(&ctx, 0, 9);
+    CHECK_EQUAL(ret, REDISMODULE_ERR);
+
+    ret = 0;
+    ret = SetNEPub_RedisCommand(&ctx, 0, 4);
+    CHECK_EQUAL(ret, REDISMODULE_ERR);
+
+    ret = 0;
+    ret = SetNEPub_RedisCommand(&ctx, 0, 9);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 }
 
@@ -600,8 +616,7 @@ TEST(exstring, setpub_command_no_key_replynull)
     mock().setData("RedisModule_KeyType_empty", 1);
     mock().setData("RedisModule_CallReplyType_null", 1);
 
-    mock().expectOneCall("RedisModule_CloseKey");
-    int ret = setPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_NO);
+    int ret = SetPub_RedisCommand(&ctx, redisStrVec, 5);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
     CHECK_EQUAL(mock().getData("GET").getIntValue(), 0);
@@ -627,8 +642,7 @@ TEST(exstring, setpub_command_no_key_replystr)
     mock().setData("RedisModule_KeyType_empty", 1);
     mock().setData("RedisModule_CallReplyType_str", 1);
 
-    mock().expectOneCall("RedisModule_CloseKey");
-    int ret = setPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_NO);
+    int ret = SetPub_RedisCommand(&ctx, redisStrVec, 5);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
     CHECK_EQUAL(mock().getData("GET").getIntValue(), 0);
@@ -655,7 +669,7 @@ TEST(exstring, setxxpub_command_has_no_key)
     mock().setData("RedisModule_CallReplyType_null", 1);
 
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = setPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_XX);
+    int ret = SetXXPub_RedisCommand(&ctx, redisStrVec, 5);
 
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
@@ -683,7 +697,7 @@ TEST(exstring, setxxpub_command_parameter_has_key_set)
     mock().setData("RedisModule_KeyType_set", 1);
 
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = setPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_XX);
+    int ret = SetXXPub_RedisCommand(&ctx, redisStrVec, 5);
 
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
@@ -712,7 +726,7 @@ TEST(exstring, setxxpub_command_has_key_string)
     mock().setData("RedisModule_CallReplyType_str", 1);
 
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = setPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_XX);
+    int ret = SetXXPub_RedisCommand(&ctx, redisStrVec, 5);
 
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
@@ -742,7 +756,7 @@ TEST(exstring, setnxpub_command_has_key_string)
     mock().setData("RedisModule_CallReplyType_null", 1);
 
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = setPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_NX);
+    int ret = SetNXPub_RedisCommand(&ctx, redisStrVec, 5);
 
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
@@ -771,7 +785,7 @@ TEST(exstring, setnxpub_command_has_no_key)
     mock().setData("RedisModule_CallReplyType_str", 1);
 
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = setPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_NX);
+    int ret = SetNXPub_RedisCommand(&ctx, redisStrVec, 5);
 
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
@@ -803,7 +817,7 @@ TEST(exstring, setiepub_command_has_no_key)
     mock().setData("RedisModule_CallReplyType_str", 1);
 
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = setPubStringGenericCommand(&ctx, redisStrVec, 6, OBJ_OP_IE);
+    int ret = SetIEPub_RedisCommand(&ctx, redisStrVec, 6);
 
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
@@ -835,7 +849,7 @@ TEST(exstring, setiepub_command_key_string_nosame)
     mock().setData("RedisModule_String_nosame", 1);
 
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = setPubStringGenericCommand(&ctx, redisStrVec, 6, OBJ_OP_IE);
+    int ret = SetIEPub_RedisCommand(&ctx, redisStrVec, 6);
 
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
@@ -866,7 +880,7 @@ TEST(exstring, setiepub_command_key_same_string_replynull)
     mock().setData("RedisModule_CallReplyType_null", 1);
 
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = setPubStringGenericCommand(&ctx, redisStrVec, 6, OBJ_OP_IE);
+    int ret = SetIEPub_RedisCommand(&ctx, redisStrVec, 6);
 
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
@@ -897,7 +911,7 @@ TEST(exstring, setiepub_command_key_same_string_reply)
     mock().setData("RedisModule_CallReplyType_str", 1);
 
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = setPubStringGenericCommand(&ctx, redisStrVec, 6, OBJ_OP_IE);
+    int ret = SetIEPub_RedisCommand(&ctx, redisStrVec, 6);
 
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
@@ -928,7 +942,7 @@ TEST(exstring, setnepub_command_has_no_key)
     mock().setData("RedisModule_String_nosame", 1);
 
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = setPubStringGenericCommand(&ctx, redisStrVec, 6, OBJ_OP_NE);
+    int ret = SetNEPub_RedisCommand(&ctx, redisStrVec, 6);
 
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
@@ -959,7 +973,7 @@ TEST(exstring, setnepub_command_key_string_same_reply)
     mock().setData("RedisModule_CallReplyType_str", 1);
 
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = setPubStringGenericCommand(&ctx, redisStrVec, 6, OBJ_OP_NE);
+    int ret = SetNEPub_RedisCommand(&ctx, redisStrVec, 6);
 
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
@@ -991,7 +1005,7 @@ TEST(exstring, setnepub_command_key_string_nosame_reply)
     mock().setData("RedisModule_String_nosame", 1);
 
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = setPubStringGenericCommand(&ctx, redisStrVec, 6, OBJ_OP_NE);
+    int ret = SetNEPub_RedisCommand(&ctx, redisStrVec, 6);
 
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
