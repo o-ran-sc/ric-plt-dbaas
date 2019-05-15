@@ -1257,6 +1257,34 @@ TEST(exstring, delpub)
     delete []redisStrVec;
 }
 
+TEST(exstring, delmpub)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[8]);
+
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)1;
+    redisStrVec[3] = (RedisModuleString *)1;
+    redisStrVec[4] = (RedisModuleString *)1;
+    redisStrVec[5] = (RedisModuleString *)1;
+    redisStrVec[6] = (RedisModuleString *)1;
+    redisStrVec[7] = (RedisModuleString *)1;
+
+    mock().setData("RedisModule_OpenKey_have", 1);
+    mock().setData("RedisModule_KeyType_str", 1);
+    mock().setData("RedisModule_String_same", 1);
+    mock().setData("RedisModule_CallReplyType_null", 1);
+    mock().setData("RedisModule_StringToLongLongCallCount", 0);
+    mock().setData("RedisModule_StringToLongLongCall_1", 1);
+    mock().setData("RedisModule_StringToLongLongCall_2", 2);
+
+    int ret = DelMPub_RedisCommand(&ctx, redisStrVec,  8);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
+
+    delete []redisStrVec;
+}
+
 TEST(exstring, deliepub)
 {
     RedisModuleCtx ctx;
@@ -1308,6 +1336,10 @@ TEST(exstring, delpub_command_parameter_number_incorrect)
     RedisModuleCtx ctx;
     int ret = 0;
     ret = DelPub_RedisCommand(&ctx, 0, 2);
+    CHECK_EQUAL(ret, REDISMODULE_ERR);
+
+    ret = 0;
+    ret = DelMPub_RedisCommand(&ctx, 0, 5);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
     ret = 0;
@@ -1390,6 +1422,243 @@ TEST(exstring, delpub_command_has_no_key)
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithCallReply").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 1);
+    delete []redisStrVec;
+
+}
+
+TEST(exstring, delmpub_command_reply_null)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString **redisStrVec = new (RedisModuleString*[6]);
+
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)1;
+    redisStrVec[3] = (RedisModuleString *)1;
+    redisStrVec[4] = (RedisModuleString *)1;
+    redisStrVec[5] = (RedisModuleString *)1;
+
+    mock().setData("RedisModule_Call_Return_Null", 1);
+    mock().setData("RedisModule_StringToLongLongCallCount", 0);
+    mock().setData("RedisModule_StringToLongLongCall_1", 1);
+    mock().setData("RedisModule_StringToLongLongCall_2", 1);
+
+    int ret = DelMPub_RedisCommand(&ctx, redisStrVec, 6);
+    CHECK_EQUAL(ret, 0);
+    CHECK_EQUAL(0, mock().getData("GET").getIntValue());
+    CHECK_EQUAL(1, mock().getData("UNLINK").getIntValue());
+    CHECK_EQUAL(0, mock().getData("PUBLISH").getIntValue());
+    CHECK_EQUAL(0, mock().getData("RedisModule_ReplyWithCallReply").getIntValue());
+    CHECK_EQUAL(0, mock().getData("RedisModule_FreeCallReply").getIntValue());
+    CHECK_EQUAL(1, mock().getData("RedisModule_ReplyWithError").getIntValue());
+    delete []redisStrVec;
+
+}
+
+TEST(exstring, delmpub_command_reply_error)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString **redisStrVec = new (RedisModuleString*[6]);
+
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)1;
+    redisStrVec[3] = (RedisModuleString *)1;
+    redisStrVec[4] = (RedisModuleString *)1;
+    redisStrVec[4] = (RedisModuleString *)1;
+
+    mock().setData("RedisModule_CallReplyInteger", 0);
+    mock().setData("RedisModule_CallReplyType_err", 1);
+    mock().setData("RedisModule_StringToLongLongCallCount", 0);
+    mock().setData("RedisModule_StringToLongLongCall_1", 1);
+    mock().setData("RedisModule_StringToLongLongCall_2", 1);
+
+    int ret = DelMPub_RedisCommand(&ctx, redisStrVec, 6);
+    CHECK_EQUAL(ret, REDISMODULE_ERR);
+    CHECK_EQUAL(mock().getData("GET").getIntValue(), 0);
+    CHECK_EQUAL(mock().getData("UNLINK").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 0);
+    CHECK_EQUAL(mock().getData("RedisModule_ReplyWithCallReply").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_ReplyWithError").getIntValue(), 0);
+    delete []redisStrVec;
+
+}
+
+TEST(exstring, delmpub_command_has_no_key)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString **redisStrVec = new (RedisModuleString*[6]);
+
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)1;
+    redisStrVec[3] = (RedisModuleString *)1;
+    redisStrVec[4] = (RedisModuleString *)1;
+    redisStrVec[5] = (RedisModuleString *)1;
+
+    mock().setData("RedisModule_CallReplyInteger", 0);
+    mock().setData("RedisModule_CallReplyType_inter", 1);
+    mock().setData("RedisModule_StringToLongLongCallCount", 0);
+    mock().setData("RedisModule_StringToLongLongCall_1", 1);
+    mock().setData("RedisModule_StringToLongLongCall_2", 1);
+
+    int ret = DelMPub_RedisCommand(&ctx, redisStrVec, 6);
+    CHECK_EQUAL(ret, 0);
+    CHECK_EQUAL(mock().getData("GET").getIntValue(), 0);
+    CHECK_EQUAL(mock().getData("UNLINK").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 0);
+    CHECK_EQUAL(mock().getData("RedisModule_ReplyWithCallReply").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 1);
+    delete []redisStrVec;
+
+}
+
+TEST(exstring, delmpub_command_key_deleted)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString **redisStrVec = new (RedisModuleString*[6]);
+
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)1;
+    redisStrVec[3] = (RedisModuleString *)1;
+    redisStrVec[4] = (RedisModuleString *)1;
+    redisStrVec[5] = (RedisModuleString *)1;
+
+    mock().setData("RedisModule_CallReplyInteger", 1);
+    mock().setData("RedisModule_CallReplyType_inter", 1);
+    mock().setData("RedisModule_StringToLongLongCallCount", 0);
+    mock().setData("RedisModule_StringToLongLongCall_1", 1);
+    mock().setData("RedisModule_StringToLongLongCall_2", 1);
+
+    int ret = DelMPub_RedisCommand(&ctx, redisStrVec, 6);
+    CHECK_EQUAL(ret, 0);
+    CHECK_EQUAL(0, mock().getData("GET").getIntValue());
+    CHECK_EQUAL(1, mock().getData("UNLINK").getIntValue());
+    CHECK_EQUAL(1, mock().getData("PUBLISH").getIntValue());
+    CHECK_EQUAL(1, mock().getData("RedisModule_ReplyWithCallReply").getIntValue());
+    CHECK_EQUAL(2, mock().getData("RedisModule_FreeCallReply").getIntValue());
+    delete []redisStrVec;
+
+}
+
+TEST(exstring, delmpub_command_key_deleted_multi_pub)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString **redisStrVec = new (RedisModuleString*[10]);
+
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)1;
+    redisStrVec[3] = (RedisModuleString *)1;
+    redisStrVec[4] = (RedisModuleString *)1;
+    redisStrVec[5] = (RedisModuleString *)1;
+    redisStrVec[6] = (RedisModuleString *)1;
+    redisStrVec[7] = (RedisModuleString *)1;
+    redisStrVec[8] = (RedisModuleString *)1;
+    redisStrVec[9] = (RedisModuleString *)1;
+
+    mock().setData("RedisModule_CallReplyInteger", 1);
+    mock().setData("RedisModule_CallReplyType_inter", 1);
+    mock().setData("RedisModule_StringToLongLongCallCount", 0);
+    mock().setData("RedisModule_StringToLongLongCall_1", 1);
+    mock().setData("RedisModule_StringToLongLongCall_2", 3);
+
+    int ret = DelMPub_RedisCommand(&ctx, redisStrVec, 10);
+    CHECK_EQUAL(0, ret);
+    CHECK_EQUAL(0, mock().getData("GET").getIntValue());
+    CHECK_EQUAL(1, mock().getData("UNLINK").getIntValue());
+    CHECK_EQUAL(3, mock().getData("PUBLISH").getIntValue());
+    CHECK_EQUAL(1, mock().getData("RedisModule_ReplyWithCallReply").getIntValue());
+    CHECK_EQUAL(4, mock().getData("RedisModule_FreeCallReply").getIntValue());
+    delete []redisStrVec;
+
+}
+
+TEST(exstring, delmpub_command_negative_del_count)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString **redisStrVec = new (RedisModuleString*[6]);
+
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)1;
+    redisStrVec[3] = (RedisModuleString *)1;
+    redisStrVec[4] = (RedisModuleString *)1;
+    redisStrVec[5] = (RedisModuleString *)1;
+
+    mock().setData("RedisModule_CallReplyInteger", 1);
+    mock().setData("RedisModule_CallReplyType_inter", 1);
+    mock().setData("RedisModule_StringToLongLongCallCount", 0);
+    mock().setData("RedisModule_StringToLongLongCall_1", -1);
+    mock().setData("RedisModule_StringToLongLongCall_2", 1);
+
+    int ret = DelMPub_RedisCommand(&ctx, redisStrVec, 6);
+    CHECK_EQUAL(0, ret);
+    CHECK_EQUAL(0, mock().getData("GET").getIntValue());
+    CHECK_EQUAL(0, mock().getData("UNLINK").getIntValue());
+    CHECK_EQUAL(0, mock().getData("PUBLISH").getIntValue());
+    CHECK_EQUAL(1, mock().getData("RedisModule_ReplyWithError").getIntValue());
+    CHECK_EQUAL(0, mock().getData("RedisModule_FreeCallReply").getIntValue());
+    delete []redisStrVec;
+
+}
+
+TEST(exstring, delmpub_command_negative_chan_msg_count)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString **redisStrVec = new (RedisModuleString*[6]);
+
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)1;
+    redisStrVec[3] = (RedisModuleString *)1;
+    redisStrVec[4] = (RedisModuleString *)1;
+    redisStrVec[5] = (RedisModuleString *)1;
+
+    mock().setData("RedisModule_CallReplyInteger", 1);
+    mock().setData("RedisModule_CallReplyType_inter", 1);
+    mock().setData("RedisModule_StringToLongLongCallCount", 0);
+    mock().setData("RedisModule_StringToLongLongCall_1", 1);
+    mock().setData("RedisModule_StringToLongLongCall_2", -1);
+
+    int ret = DelMPub_RedisCommand(&ctx, redisStrVec, 6);
+    CHECK_EQUAL(0, ret);
+    CHECK_EQUAL(0, mock().getData("GET").getIntValue());
+    CHECK_EQUAL(0, mock().getData("UNLINK").getIntValue());
+    CHECK_EQUAL(0, mock().getData("PUBLISH").getIntValue());
+    CHECK_EQUAL(1, mock().getData("RedisModule_ReplyWithError").getIntValue());
+    CHECK_EQUAL(0, mock().getData("RedisModule_FreeCallReply").getIntValue());
+    delete []redisStrVec;
+
+}
+
+TEST(exstring, delmpub_command_invalid_total_count)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString **redisStrVec = new (RedisModuleString*[6]);
+
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)1;
+    redisStrVec[3] = (RedisModuleString *)1;
+    redisStrVec[4] = (RedisModuleString *)1;
+    redisStrVec[5] = (RedisModuleString *)1;
+
+    mock().setData("RedisModule_CallReplyInteger", 1);
+    mock().setData("RedisModule_CallReplyType_inter", 1);
+    mock().setData("RedisModule_StringToLongLongCallCount", 0);
+    mock().setData("RedisModule_StringToLongLongCall_1", 100);
+    mock().setData("RedisModule_StringToLongLongCall_2", 100);
+
+    int ret = DelMPub_RedisCommand(&ctx, redisStrVec, 6);
+    CHECK_EQUAL(0, ret);
+    CHECK_EQUAL(0, mock().getData("GET").getIntValue());
+    CHECK_EQUAL(0, mock().getData("UNLINK").getIntValue());
+    CHECK_EQUAL(0, mock().getData("PUBLISH").getIntValue());
+    CHECK_EQUAL(1, mock().getData("RedisModule_ReplyWithError").getIntValue());
+    CHECK_EQUAL(0, mock().getData("RedisModule_FreeCallReply").getIntValue());
     delete []redisStrVec;
 
 }

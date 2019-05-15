@@ -39,6 +39,7 @@ int SetNEPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int arg
 int SetNXPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int SetXXPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int DelPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
+int DelMPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int DelIEPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int DelNEPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int NGet_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);

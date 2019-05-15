@@ -159,6 +159,12 @@ Time complexity: O(N) where N is the number of keys that will be removed + O(N+M
 
 Removes the specified keys and post a message to the given channel if delete key successfully(return >0)
 
+## DELMPUB number_of_keys number_of_channel_message_pairs key [ key ... ] channel message [ channel message ... ]
+
+Time complexity: O(N) where N is the number of keys that will be removed + O(N_1+M) [ + O(N_2+M) + ... ] where N_i are the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+
+Remove the specified keys. If any of the keys was deleted succesfully (delete return value > 0) then post given messages to the corresponding channels.
+
 ## DELIEPUB key oldvalue channel message [channel message...]
 
 Time complexity: O(1) + O(1) + O(1) + O(N_1+M) [ + O(N_2+M) + ...] where N_i are the number of clients subscribed to the corrensponding receiving channel and M is the total number of subscribed patterns (by any client)
