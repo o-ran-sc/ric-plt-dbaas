@@ -506,6 +506,35 @@ int DelPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
     return delPubStringCommon(ctx, &delParams, &pubParams);
 }
 
+int DelMPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
+{
+    if (argc < 6)
+        return RedisModule_WrongArity(ctx);
+
+    long long delCount, pubPairsCount;
+    RedisModule_StringToLongLong(argv[1], &delCount);
+    RedisModule_StringToLongLong(argv[2], &pubPairsCount);
+    if (delCount < 1 || pubPairsCount < 1)
+        return RedisModule_ReplyWithError(ctx, "ERR DEL_COUNT and PUB_PAIR_COUNT must be greater than zero");
+
+    long long delLen, pubLen;
+    delLen = delCount;
+    pubLen = 2*pubPairsCount;
+    if (delLen + pubLen + 3 != argc)
+        return RedisModule_ReplyWithError(ctx, "ERR DEL_COUNT or PUB_PAIR_COUNT do not match the total pair count");
+
+    DelParams delParams = {
+                           .keys = argv + 3,
+                           .length = delLen
+                          };
+    PubParams pubParams = {
+                           .channel_msg_pairs = argv + 3 + delParams.length,
+                           .length = pubLen
+                          };
+
+    return delPubStringCommon(ctx, &delParams, &pubParams);
+}
+
 int delIENEPubStringCommon(RedisModuleCtx *ctx, RedisModuleString **argv, int argc, int flag)
 {
     if (argc < 5 || (argc % 2) == 0)
@@ -610,6 +639,10 @@ int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) 
 
     if (RedisModule_CreateCommand(ctx,"delpub",
         DelPub_RedisCommand,"write deny-oom",1,1,1) == REDISMODULE_ERR)
+        return REDISMODULE_ERR;
+
+    if (RedisModule_CreateCommand(ctx,"delmpub",
+        DelMPub_RedisCommand,"write deny-oom pubsub",1,1,1) == REDISMODULE_ERR)
         return REDISMODULE_ERR;
 
     if (RedisModule_CreateCommand(ctx,"deliepub",
