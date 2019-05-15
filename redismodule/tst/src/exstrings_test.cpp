@@ -1307,15 +1307,15 @@ TEST(exstring, delpub_command_parameter_number_incorrect)
 {
     RedisModuleCtx ctx;
     int ret = 0;
-    ret = delPubStringGenericCommand(&ctx, 0, 2, OBJ_OP_NO);
+    ret = DelPub_RedisCommand(&ctx, 0, 2);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
     ret = 0;
-    ret = delPubStringGenericCommand(&ctx, 0, 4, OBJ_OP_IE);
+    ret = DelIEPub_RedisCommand(&ctx, 0, 4);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
     ret = 0;
-    ret = delPubStringGenericCommand(&ctx, 0, 8, OBJ_OP_NE);
+    ret = DelNEPub_RedisCommand(&ctx, 0, 8);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 }
 
@@ -1333,7 +1333,7 @@ TEST(exstring, delpub_command_reply_null)
     mock().setData("RedisModule_CallReplyType_inter", 1);
     mock().setData("RedisModule_Call_Return_Null", 0);
 
-    int ret = delPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_NO);
+    int ret = DelPub_RedisCommand(&ctx, redisStrVec, 5);
     CHECK_EQUAL(ret, 0);
     CHECK_EQUAL(mock().getData("GET").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("UNLINK").getIntValue(), 1);
@@ -1358,7 +1358,7 @@ TEST(exstring, delpub_command_reply_error)
     mock().setData("RedisModule_CallReplyInteger", 0);
     mock().setData("RedisModule_CallReplyType_err", 1);
 
-    int ret = delPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_NO);
+    int ret = DelPub_RedisCommand(&ctx, redisStrVec, 5);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
     CHECK_EQUAL(mock().getData("GET").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("UNLINK").getIntValue(), 1);
@@ -1383,7 +1383,7 @@ TEST(exstring, delpub_command_has_no_key)
     mock().setData("RedisModule_CallReplyInteger", 0);
     mock().setData("RedisModule_CallReplyType_inter", 1);
 
-    int ret = delPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_NO);
+    int ret = DelPub_RedisCommand(&ctx, redisStrVec, 5);
     CHECK_EQUAL(ret, 0);
     CHECK_EQUAL(mock().getData("GET").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("UNLINK").getIntValue(), 1);
@@ -1407,7 +1407,7 @@ TEST(exstring, deliepub_command_has_no_key)
     mock().setData("RedisModule_KeyType_empty", 1);
 
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = delPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_IE);
+    int ret = DelIEPub_RedisCommand(&ctx, redisStrVec, 5);
     CHECK_EQUAL(ret, 0);
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithLongLong").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("GET").getIntValue(), 0);
@@ -1433,7 +1433,7 @@ TEST(exstring, deliepub_command_has_key_set)
     mock().setData("RedisModule_OpenKey_have", 1);
     mock().setData("RedisModule_KeyType_set", 1);
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = delPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_IE);
+    int ret = DelIEPub_RedisCommand(&ctx, redisStrVec, 5);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithError").getIntValue(), 1);
@@ -1461,7 +1461,7 @@ TEST(exstring, deliepub_command_key_string_nosame)
     mock().setData("RedisModule_KeyType_str", 1);
     mock().setData("RedisModule_String_nosame", 1);
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = delPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_IE);
+    int ret = DelIEPub_RedisCommand(&ctx, redisStrVec, 5);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithError").getIntValue(), 0);
@@ -1491,7 +1491,7 @@ TEST(exstring, deliepub_command_same_string_replynull)
     mock().setData("RedisModule_String_same", 1);
     mock().setData("RedisModule_CallReplyType_null", 1);
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = delPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_IE);
+    int ret = DelIEPub_RedisCommand(&ctx, redisStrVec, 5);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithError").getIntValue(), 0);
@@ -1522,7 +1522,7 @@ TEST(exstring, deliepub_command_same_string_reply)
     mock().setData("RedisModule_CallReplyType_str", 1);
     mock().setData("RedisModule_CallReplyInteger", 1);
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = delPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_IE);
+    int ret = DelIEPub_RedisCommand(&ctx, redisStrVec, 5);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithError").getIntValue(), 0);
@@ -1552,7 +1552,7 @@ TEST(exstring, delnepub_command_same_string_reply)
     mock().setData("RedisModule_String_same", 1);
     mock().setData("RedisModule_CallReplyType_str", 1);
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = delPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_NE);
+    int ret = DelNEPub_RedisCommand(&ctx, redisStrVec, 5);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithError").getIntValue(), 0);
@@ -1583,7 +1583,7 @@ TEST(exstring, delnepub_command_nosame_string_reply)
     mock().setData("RedisModule_CallReplyType_str", 1);
     mock().setData("RedisModule_CallReplyInteger", 1);
     mock().expectOneCall("RedisModule_CloseKey");
-    int ret = delPubStringGenericCommand(&ctx, redisStrVec, 5, OBJ_OP_NE);
+    int ret = DelNEPub_RedisCommand(&ctx, redisStrVec, 5);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithError").getIntValue(), 0);
