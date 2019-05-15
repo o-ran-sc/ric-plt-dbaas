@@ -595,7 +595,7 @@ int DelPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
 
 int delIENEPubStringCommon(RedisModuleCtx *ctx, RedisModuleString **argv, int argc, int flag)
 {
-    if (argc != 5)
+    if (argc < 5 || (argc % 2) == 0)
         return RedisModule_WrongArity(ctx);
 
     DelParams delParams = {
