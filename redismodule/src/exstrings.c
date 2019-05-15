@@ -71,6 +71,11 @@ typedef struct _PubParams {
     size_t length;
 } PubParams;
 
+typedef struct _DelParams {
+    RedisModuleString **keys;
+    size_t length;
+} DelParams;
+
 void multiPubCommand(RedisModuleCtx *ctx, PubParams* pubParams)
 {
     RedisModuleCallReply *reply = NULL;
@@ -554,19 +559,83 @@ int delPubStringGenericCommand(RedisModuleCtx *ctx, RedisModuleString **argv,
     return REDISMODULE_OK;
 }
 
+int delPubStringCommon(RedisModuleCtx *ctx, DelParams *delParamsPtr, PubParams *pubParamsPtr)
+{
+    RedisModuleCallReply *reply = RedisModule_Call(ctx, "UNLINK", "v!", delParamsPtr->keys, delParamsPtr->length);
+    ASSERT_NOERROR(reply)
+    int replytype = RedisModule_CallReplyType(reply);
+    if (replytype == REDISMODULE_REPLY_NULL) {
+        RedisModule_ReplyWithNull(ctx);
+    } else if (RedisModule_CallReplyInteger(reply) == 0) {
+        RedisModule_ReplyWithCallReply(ctx, reply);
+    } else {
+        RedisModule_ReplyWithCallReply(ctx, reply);
+        multiPubCommand(ctx, pubParamsPtr);
+    }
+    RedisModule_FreeCallReply(reply);
+    return REDISMODULE_OK;
+}
+
 int DelPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
 {
-   return delPubStringGenericCommand(ctx, argv, argc, OBJ_OP_NO);
+    if (argc < 4)
+        return RedisModule_WrongArity(ctx);
+
+    DelParams delParams = {
+                           .keys = argv + 1,
+                           .length = argc - 3
+                          };
+    PubParams pubParams = {
+                           .channel_msg_pairs = argv + 1 + delParams.length,
+                           .length = 2
+                          };
+
+    return delPubStringCommon(ctx, &delParams, &pubParams);
+}
+
+int delIENEPubStringCommon(RedisModuleCtx *ctx, RedisModuleString **argv, int argc, int flag)
+{
+    if (argc != 5)
+        return RedisModule_WrongArity(ctx);
+
+    DelParams delParams = {
+                           .keys = argv + 1,
+                           .length = 1
+                          };
+    PubParams pubParams = {
+                           .channel_msg_pairs = argv + 3,
+                           .length = argc - 3
+                          };
+    RedisModuleString *key = argv[1];
+    RedisModuleString *oldvalstr = argv[2];
+
+    int type = getKeyType(ctx, key);
+    if (type == REDISMODULE_KEYTYPE_EMPTY) {
+        return RedisModule_ReplyWithLongLong(ctx, 0);
+    } else if (type != REDISMODULE_KEYTYPE_STRING) {
+        return RedisModule_ReplyWithError(ctx, REDISMODULE_ERRORMSG_WRONGTYPE);
+    }
+
+    RedisModuleCallReply *reply = RedisModule_Call(ctx, "GET", "s", key);
+    ASSERT_NOERROR(reply)
+    bool is_equal = replyContentsEqualString(reply, oldvalstr);
+    RedisModule_FreeCallReply(reply);
+    if ((flag == OBJ_OP_IE && !is_equal) ||
+        (flag == OBJ_OP_NE && is_equal)) {
+        return RedisModule_ReplyWithLongLong(ctx, 0);
+    }
+
+    return delPubStringCommon(ctx, &delParams, &pubParams);
 }
 
 int DelIEPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
 {
-   return delPubStringGenericCommand(ctx, argv, argc, OBJ_OP_IE);
+   return delIENEPubStringCommon(ctx, argv, argc, OBJ_OP_IE);
 }
 
 int DelNEPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
 {
-   return delPubStringGenericCommand(ctx, argv, argc, OBJ_OP_NE);
+   return delIENEPubStringCommon(ctx, argv, argc, OBJ_OP_NE);
 }
 
 /* This function must be present on each Redis module. It is used in order to
