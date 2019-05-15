@@ -358,7 +358,7 @@ int SetPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
 
 int setIENEPubStringCommon(RedisModuleCtx *ctx, RedisModuleString **argv, int argc, int flag)
 {
-    if (argc != 6)
+    if (argc < 6 || (argc % 2) != 0)
         return RedisModule_WrongArity(ctx);
 
     SetParams setParams = {
@@ -403,7 +403,7 @@ int SetIEPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int arg
 
 int setXXNXPubStringCommon(RedisModuleCtx *ctx, RedisModuleString **argv, int argc, int flag)
 {
-    if (argc != 5)
+    if (argc < 5 || (argc % 2) == 0)
         return RedisModule_WrongArity(ctx);
 
     SetParams setParams = {
