@@ -159,17 +159,17 @@ Time complexity: O(N) where N is the number of keys that will be removed + O(N+M
 
 Removes the specified keys and post a message to the given channel if delete key successfully(return >0)
 
-## DELIEPUB key oldvalue channel message
+## DELIEPUB key oldvalue channel message [channel message...]
 
-ime complexity: O(1) + O(1) + O(1) + O(N+M) where N is the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+Time complexity: O(1) + O(1) + O(1) + O(N_1+M) [ + O(N_2+M) + ...] where N_i are the number of clients subscribed to the corrensponding receiving channel and M is the total number of subscribed patterns (by any client)
 
-Checks a String 'key' for 'oldvalue' equality and delete the key and post a message to the given channel if delete key successfully(return 1)
+If the string corresponding to 'key' is equal to 'oldvalue' then delete the key. If deletion was succesful (delete return value was 1) then post given messages to the corresponding channels.
 
-## DELNEPUB key oldvalue channel message
+## DELNEPUB key oldvalue channel message [channel message...]
 
-Time complexity: O(1) + O(1) + O(1) + O(N+M) where N is the number of clients subscribed to the receiving channel and M is the total number of subscribed patterns (by any client)
+Time complexity: O(1) + O(1) + O(1) + O(N_1+M) [ + O(N_2+M) + ...] where N_i are the number of clients subscribed to the corrensponding receiving channel and M is the total number of subscribed patterns (by any client)
 
-Checks a String 'key' for 'oldvalue' not equality and delete the key and post a message to the given channel if delete key successfully(return 1)
+If the string corresponding to 'key' is not equal to 'oldvalue' then delete the key. If deletion was succesful (delete return value was 1) then post given messages to the corresponding channels.
 
 ## NGET pattern
 
