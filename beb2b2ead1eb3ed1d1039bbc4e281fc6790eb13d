@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c466dfbd_018de299",
+        "filename": "container-tag.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000004
+      },
+      "writtenOn": "2019-06-14T10:31:32Z",
+      "side": 1,
+      "message": "Is this the tag that should be referred in dbaas-service/value.yaml\n\n  22   image:\n  23     name: snapshot.docker.ranco-dev-tools.eastus.cloudapp.azure.com/redis-standalone\n  24     tag: latest   \u003c\u003d\u003d\u003d Should this refer to this tag?\n  25     imagePullPolicy: IfNotPresent",
+      "revId": "beb2b2ead1eb3ed1d1039bbc4e281fc6790eb13d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
