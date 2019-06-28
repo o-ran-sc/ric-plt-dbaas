@@ -1,0 +1,42 @@
+################################################################################
+#   Copyright (c) 2019 AT&T Intellectual Property.                             #
+#   Copyright (c) 2019 Nokia.                                                  #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+################################################################################
+
+FROM ubuntu:latest
+
+# Install utilities
+RUN apt update && \
+    apt install -y vim telnet iputils-ping net-tools dnsutils curl python fio && \
+    apt clean
+
+RUN apt install -y build-essential && \
+    apt install -y automake && \
+    apt install -y libtool && \
+    apt clean
+# Install redis & sentinel
+RUN apt update && \
+    apt install -y redis-server && \
+    apt install -y redis-sentinel && \
+    apt clean
+
+# Install our own redis module
+COPY ./redismodule ./redismodule
+WORKDIR /redismodule
+RUN ./autogen.sh && \
+    ./configure && \
+    make install -j
+
+WORKDIR /data
