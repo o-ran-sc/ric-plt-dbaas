@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bb0fa91_658e5b9e",
+        "filename": "README-HA.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000014
+      },
+      "writtenOn": "2019-06-28T20:10:53Z",
+      "side": 1,
+      "message": "Suggest adding license header to this file",
+      "revId": "8b1214b7b4bd6bc714ff537002c64dba14bd99e2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9a73af1_03c57cf9",
+        "filename": "README-HA.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000014
+      },
+      "writtenOn": "2019-06-28T20:10:53Z",
+      "side": 1,
+      "message": "the docker build should be automated at the LF by Jenkins so maybe you don\u0027t really need to document the build process?",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 3
+      },
+      "revId": "8b1214b7b4bd6bc714ff537002c64dba14bd99e2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
