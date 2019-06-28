@@ -1,0 +1,45 @@
+################################################################################
+#   Copyright (c) 2019 AT&T Intellectual Property.                             #
+#   Copyright (c) 2019 Nokia.                                                  #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+################################################################################
+
+{{- $fullName := include "redis-ha.fullname" . }}
+{{- $replicas := int .Values.replicas }}
+{{- $root := . }}
+{{- range $i := until $replicas }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}-announce-{{ $i }}
+  labels:
+{{ include "labels.standard" $root | indent 4 }}
+spec:
+  publishNotReadyAddresses: true
+  type: ClusterIP
+  ports:
+  - name: server
+    port: {{ $root.Values.redis.port }}
+    protocol: TCP
+    targetPort: redis
+  - name: sentinel
+    port: {{ $root.Values.sentinel.port }}
+    protocol: TCP
+    targetPort: sentinel
+  selector:
+    release: {{ $root.Release.Name }}
+    app: {{ include "redis-ha.name" $root }}
+    "statefulset.kubernetes.io/pod-name": {{ $fullName }}-server-{{ $i }}
+{{- end }}

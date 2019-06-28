@@ -1,0 +1,12 @@
+Redis can be accessed via port {{ .Values.redis.port }} and Sentinel can be accessed via port {{ .Values.sentinel.port }} on the following DNS name from within your cluster:
+{{ template "redis-ha.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+
+To connect to your Redis server:
+
+1. Run a Redis pod that you can use as a client:
+
+   kubectl exec -it {{ template "redis-ha.fullname" . }}-server-0 sh -n {{ .Release.Namespace }}
+
+2. Connect using the Redis CLI:
+
+  redis-cli -h {{ template "redis-ha.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
