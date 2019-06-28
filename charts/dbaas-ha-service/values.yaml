@@ -1,0 +1,61 @@
+################################################################################
+#   Copyright (c) 2019 AT&T Intellectual Property.                             #
+#   Copyright (c) 2019 Nokia.                                                  #
+#                                                                              #
+#   Licensed under the Apache License, Version 2.0 (the "License");            #
+#   you may not use this file except in compliance with the License.           #
+#   You may obtain a copy of the License at                                    #
+#                                                                              #
+#       http://www.apache.org/licenses/LICENSE-2.0                             #
+#                                                                              #
+#   Unless required by applicable law or agreed to in writing, software        #
+#   distributed under the License is distributed on an "AS IS" BASIS,          #
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+#   See the License for the specific language governing permissions and        #
+#   limitations under the License.                                             #
+################################################################################
+
+image:
+  repository: snapshot.docker.ranco-dev-tools.eastus.cloudapp.azure.com:10001/dbaas-ha
+  tag: 0.1.0
+  pullPolicy: IfNotPresent
+replicas: 3
+
+redis:
+  port: 6379
+  masterGroupName: mymaster
+  config:
+    ## For /data/conf/redis.conf
+    min-slaves-to-write: 1
+    min-slaves-max-lag: 5
+    maxmemory: "0"
+    maxmemory-policy: "volatile-lru"
+    protected-mode: "no"
+    loadmodule: "/usr/local/libexec/redismodule/libredismodule.so"
+
+sentinel:
+  port: 26379
+  quorum: 2
+  config:
+    ## For /data/conf/sentinel.conf
+    down-after-milliseconds: 10000
+    failover-timeout: 180000
+    parallel-syncs: 5
+
+affinity: |
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app: {{ template "redis-ha.name" . }}
+            release: {{ .Release.Name }}
+        topologyKey: kubernetes.io/hostname
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app:  {{ template "redis-ha.name" . }}
+              release: {{ .Release.Name }}
+          topologyKey: failure-domain.beta.kubernetes.io/zone
+
