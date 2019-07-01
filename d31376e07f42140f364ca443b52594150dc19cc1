@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fdd09440_f8a9462e",
+        "filename": "docker/Dockerfile.redis-ha",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1000014
+      },
+      "writtenOn": "2019-07-01T13:26:59Z",
+      "side": 1,
+      "message": "Today this will get you ubuntu 18.04.  You may wish instead to pin the version so that when latest becomes 19.x or 20.x, you will not be affected.",
+      "range": {
+        "startLine": 18,
+        "startChar": 5,
+        "endLine": 18,
+        "endChar": 18
+      },
+      "revId": "d31376e07f42140f364ca443b52594150dc19cc1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57907bab_fc9a315c",
+        "filename": "docker/Dockerfile.redis-ha",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000014
+      },
+      "writtenOn": "2019-07-01T13:26:59Z",
+      "side": 1,
+      "message": "Instead of installing these build tools yourself, you may wish to start from a RIC project base builder image, it saves time during the build.  Please see here:\n\nhttps://wiki.o-ran-sc.org/display/ORAN/Base+Docker+Images+for+CI+Builds",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 1
+      },
+      "revId": "d31376e07f42140f364ca443b52594150dc19cc1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b28bd1f4_8420028c",
+        "filename": "docker/Dockerfile.redis-ha",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1000014
+      },
+      "writtenOn": "2019-07-01T13:26:59Z",
+      "side": 1,
+      "message": "This single-stage Dockerfile means that your deployed image carries all the build tools like gcc etc, which is not necessary.  Instead I recommend a two-stage Docker file.  The first stage does all the building, the second stage copies over just the binaries that you need. Please see other examples in the RIC project.",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 1
+      },
+      "revId": "d31376e07f42140f364ca443b52594150dc19cc1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
