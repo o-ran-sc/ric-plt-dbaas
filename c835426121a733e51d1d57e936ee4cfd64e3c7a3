@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "1ae42279_47d1c872",
+        "filename": "charts/dbaas-ha-service/templates/configmap.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2019-07-01T09:19:17Z",
+      "side": 1,
+      "message": "Extra space character at the end of line?",
+      "range": {
+        "startLine": 99,
+        "startChar": 118,
+        "endLine": 99,
+        "endChar": 123
+      },
+      "revId": "c835426121a733e51d1d57e936ee4cfd64e3c7a3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "219c9190_cee5e069",
         "filename": "docker/Dockerfile.redis-ha",
         "patchSetId": 1
