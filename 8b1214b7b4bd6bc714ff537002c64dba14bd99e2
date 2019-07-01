@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "057a5f00_2106827c",
+        "filename": "README-HA.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000004
+      },
+      "writtenOn": "2019-07-01T06:24:59Z",
+      "side": 1,
+      "message": "README files typically doesn\u0027t include the license header. Also should consider only one README per repo",
+      "parentUuid": "8bb0fa91_658e5b9e",
+      "revId": "8b1214b7b4bd6bc714ff537002c64dba14bd99e2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c9a73af1_03c57cf9",
         "filename": "README-HA.md",
         "patchSetId": 1
