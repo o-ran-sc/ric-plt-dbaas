@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05d0b5b9_1f2fb337",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000066
+      },
+      "writtenOn": "2019-07-09T11:15:45Z",
+      "side": 1,
+      "message": "Lets proceed as we discussed and do not commit this code",
+      "revId": "0d163f137317c3fc7c38f3cd92cef5f302b71c5a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
