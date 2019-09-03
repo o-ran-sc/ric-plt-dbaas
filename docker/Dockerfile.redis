@@ -13,32 +13,16 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-FROM ubuntu:latest
+FROM nexus3.o-ran-sc.org:10004/bldr-alpine3:5-a3.9 as build-env
 
-# Install redis
-RUN apt update && \
-    apt install -y redis-server && \
-    apt clean
 
-# Install Redis modules
-RUN apt install -y build-essential && \
-    apt install -y automake && \
-    apt install -y libtool && \
-    apt clean
-COPY ./redismodule ./redismodule
+COPY ./redismodule /redismodule
 WORKDIR /redismodule
 RUN ./autogen.sh && \
     ./configure && \
     make install -j
 
-# Create suitable configuration file
-RUN sed -i 's/^\(bind .*\)$/# \1/' /etc/redis/redis.conf && \
-    sed -i 's/^\(daemonize .*\)$/# \1/' /etc/redis/redis.conf && \
-    sed 's/^protected-mode yes/protected-mode no/' -i /etc/redis/redis.conf && \
-    echo 'loadmodule /usr/local/libexec/redismodule/libredismodule.so' >> /etc/redis/redis.conf && \
-    sed -i 's/^\(save .*\)$/# \1/' /etc/redis/redis.conf && \
-    echo 'save ""' >> /etc/redis/redis.conf
+FROM redis:5.0.5-alpine3.9
 
-EXPOSE 6379
-
-CMD ["redis-server", "/etc/redis/redis.conf"]
+COPY --from=build-env /usr/local/libexec/redismodule/libredismodule.so /usr/local/libexec/redismodule/libredismodule.so
+WORKDIR /data
