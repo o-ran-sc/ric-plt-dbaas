@@ -1,0 +1,9 @@
+Verified+1: ORAN Jobbuilder <releng+oran-jobbuilder@linuxfoundation.org>
+Code-Review+1: Timo Tietavainen <timo.tietavainen@nokia.com>
+Code-Review+1: Harry Tran <tuyen@research.att.com>
+Code-Review+2: Marco Tallskog <marco.tallskog@nokia.com>
+Submitted-by: Marco Tallskog <marco.tallskog@nokia.com>
+Submitted-at: Tue, 17 Sep 2019 13:54:23 +0000
+Reviewed-on: https://gerrit.o-ran-sc.org/r/c/ric-plt/dbaas/+/961
+Project: ric-plt/dbaas
+Branch: refs/heads/master
