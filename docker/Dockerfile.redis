@@ -24,5 +24,6 @@ RUN ./autogen.sh && \
 
 FROM redis:5.0.5-alpine3.9
 
+RUN apk add curl
 COPY --from=build-env /usr/local/libexec/redismodule/libredismodule.so /usr/local/libexec/redismodule/libredismodule.so
 WORKDIR /data
