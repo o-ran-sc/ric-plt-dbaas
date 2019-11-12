@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e39cb137_33f1eb5b",
+        "filename": "docs/release-notes.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1000108
+      },
+      "writtenOn": "2019-11-12T15:00:10Z",
+      "side": 1,
+      "message": "Are you sure you want to use literal text (with long lines that in browsers need to scroll vertically). I prefer normal rendered text that is split into multiple lines as per browser width",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 2
+      },
+      "revId": "71fac3d37e6213d5ed13c462e3d36562748ee2bf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
