@@ -22,6 +22,30 @@
       "revId": "71fac3d37e6213d5ed13c462e3d36562748ee2bf",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f95c31d5_c3cbc5c1",
+        "filename": "docs/release-notes.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2019-11-12T15:17:10Z",
+      "side": 1,
+      "message": "OK, Changed to use \"normal\" text, correction available in patched 7.",
+      "parentUuid": "e39cb137_33f1eb5b",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 2
+      },
+      "revId": "71fac3d37e6213d5ed13c462e3d36562748ee2bf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
