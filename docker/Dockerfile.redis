@@ -13,8 +13,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-FROM nexus3.o-ran-sc.org:10004/bldr-alpine3:5-a3.9 as build-env
-
+FROM nexus3.o-ran-sc.org:10004/bldr-alpine3:6-a3.9-nng as build-env
 
 COPY ./redismodule /redismodule
 WORKDIR /redismodule
