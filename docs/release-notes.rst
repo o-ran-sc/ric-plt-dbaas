@@ -1,0 +1,62 @@
+..
+..  Copyright (c) 2019 AT&T Intellectual Property.
+..  Copyright (c) 2019 Nokia.
+..
+..  Licensed under the Creative Commons Attribution 4.0 International
+..  Public License (the "License"); you may not use this file except
+..  in compliance with the License. You may obtain a copy of the License at
+..
+..    https://creativecommons.org/licenses/by/4.0/
+..
+..  Unless required by applicable law or agreed to in writing, documentation
+..  distributed under the License is distributed on an "AS IS" BASIS,
+..  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+..
+..  See the License for the specific language governing permissions and
+..  limitations under the License.
+..
+
+Release-Notes
+=============
+
+
+This document provides the release notes for O-RAN SC Amber release of
+ric-plt/dbaas.
+
+.. contents::
+   :depth: 3
+   :local:
+
+
+
+Version history
+---------------
+
+[0.2.2] - Nov 12, 2019
+
+::
+
+    * Take Alpine (version 6-a3.9) linux base image into use in Redis docker
+      image.
+    * Add mandatory documentation files.
+
+[0.2.1] - Sep 17, 2019
+
+::
+
+    * Add the curl tool to docker image to facilitate trouble-shooting.
+
+[0.2.0] - Sep 3, 2019
+
+::
+
+    * Take Redis 5.0 in use.
+
+[0.1.0] - Jun 17, 2019
+
+::
+
+    * Initial Implementation to provide all the needed elements to deploy
+      database as a service docker image to kubernetes.
+    * Introduce new Redis modules: SETIE, SETNE, DELIE, DELNE, MSETPUB,
+      MSETMPUB and SETXXPUB.
