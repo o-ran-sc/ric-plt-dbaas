@@ -13,6 +13,11 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+#
+#   This source code is part of the near-RT RIC (RAN Intelligent Controller)
+#   platform project (RICP).
+#
+
 FROM nexus3.o-ran-sc.org:10004/bldr-alpine3:6-a3.9-nng as build-env
 
 COPY ./redismodule /redismodule
