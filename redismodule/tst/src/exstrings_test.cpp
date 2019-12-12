@@ -46,6 +46,11 @@ extern "C" {
 #define OBJ_OP_IE (1<<4)     /* OP if equal old value */
 #define OBJ_OP_NE (1<<5)     /* OP if not equal old value */
 
+typedef struct RedisModuleBlockedClientArgs {
+    RedisModuleBlockedClient *bc;
+    RedisModuleString **argv;
+    int argc;
+} RedisModuleBlockedClientArgs;
 
 TEST_GROUP(exstring)
 {
@@ -88,6 +93,7 @@ TEST(exstring, setie)
 
     int ret = SetIE_RedisCommand(&ctx, redisStrVec,  4);
     CHECK_EQUAL(ret, 0);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
     delete []redisStrVec;
 }
 
@@ -106,6 +112,7 @@ TEST(exstring, setne)
     mock().setData("RedisModule_String_same", 1);
     int ret = SetNE_RedisCommand(&ctx,redisStrVec, 4);
     CHECK_EQUAL(ret, 0);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
     delete []redisStrVec;
 }
 
@@ -266,6 +273,7 @@ TEST(exstring, delie)
     int ret = DelIE_RedisCommand(&ctx, redisStrVec,  3);
     CHECK_EQUAL(ret, 0);
     mock().checkExpectations();
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
     delete []redisStrVec;
 }
 
@@ -285,6 +293,7 @@ TEST(exstring, delne)
     int ret = DelNE_RedisCommand(&ctx,redisStrVec, 3);
     CHECK_EQUAL(ret, 0);
     mock().checkExpectations();
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
     delete []redisStrVec;
 }
 
@@ -465,6 +474,7 @@ TEST(exstring, setpub)
     int ret = SetPub_RedisCommand(&ctx, redisStrVec,  5);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
     delete []redisStrVec;
 }
 
@@ -487,6 +497,7 @@ TEST(exstring, setmpub)
     int ret = SetMPub_RedisCommand(&ctx, redisStrVec, 11);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
     delete []redisStrVec;
 }
 
@@ -510,6 +521,7 @@ TEST(exstring, setxxpub)
     int ret = SetXXPub_RedisCommand(&ctx, redisStrVec,  5);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
     delete []redisStrVec;
 }
 
@@ -533,6 +545,31 @@ TEST(exstring, setnxpub)
     int ret = SetNXPub_RedisCommand(&ctx, redisStrVec,  5);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
+    delete []redisStrVec;
+}
+
+TEST(exstring, setnxmpub)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[5]);
+
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)1;
+    redisStrVec[3] = (RedisModuleString *)1;
+    redisStrVec[4] = (RedisModuleString *)1;
+
+    mock().setData("RedisModule_OpenKey_have", 1);
+    mock().setData("RedisModule_KeyType_str", 1);
+    mock().setData("RedisModule_String_same", 1);
+    mock().setData("RedisModule_CallReplyType_null", 1);
+
+    mock().expectOneCall("RedisModule_CloseKey");
+    int ret = SetNXMPub_RedisCommand(&ctx, redisStrVec,  5);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
+    mock().checkExpectations();
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
     delete []redisStrVec;
 }
 
@@ -557,6 +594,32 @@ TEST(exstring, setiepub)
     int ret = SetIEPub_RedisCommand(&ctx, redisStrVec,  6);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
+    delete []redisStrVec;
+}
+
+TEST(exstring, setiempub)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[6]);
+
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)1;
+    redisStrVec[3] = (RedisModuleString *)1;
+    redisStrVec[4] = (RedisModuleString *)1;
+    redisStrVec[5] = (RedisModuleString *)1;
+
+    mock().setData("RedisModule_OpenKey_have", 1);
+    mock().setData("RedisModule_KeyType_str", 1);
+    mock().setData("RedisModule_String_same", 1);
+    mock().setData("RedisModule_CallReplyType_null", 1);
+
+    mock().expectOneCall("RedisModule_CloseKey");
+    int ret = SetIEMPub_RedisCommand(&ctx, redisStrVec,  6);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
+    mock().checkExpectations();
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
     delete []redisStrVec;
 }
 
@@ -581,6 +644,7 @@ TEST(exstring, setnepub)
     int ret = SetNEPub_RedisCommand(&ctx, redisStrVec,  6);
     CHECK_EQUAL(ret, REDISMODULE_OK);
     mock().checkExpectations();
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
     delete []redisStrVec;
 }
 
@@ -617,11 +681,19 @@ TEST(exstring, setpub_command_parameter_number_incorrect)
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
     ret = 0;
+    ret = SetNXMPub_RedisCommand(&ctx, 0, 3);
+    CHECK_EQUAL(ret, REDISMODULE_ERR);
+
+    ret = 0;
     ret = SetNXPub_RedisCommand(&ctx, 0, 6);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
     ret = 0;
     ret = SetIEPub_RedisCommand(&ctx, 0, 4);
+    CHECK_EQUAL(ret, REDISMODULE_ERR);
+
+    ret = 0;
+    ret = SetIEMPub_RedisCommand(&ctx, 0, 4);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
     ret = 0;
@@ -658,6 +730,7 @@ TEST(exstring, setpub_command_no_key_replynull)
     CHECK_EQUAL(mock().getData("MSET").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -684,6 +757,7 @@ TEST(exstring, setpub_command_no_key_replystr)
     CHECK_EQUAL(mock().getData("MSET").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 2);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -716,6 +790,7 @@ TEST(exstring, setmpub_command_no_key_replynull)
     CHECK_EQUAL(1, mock().getData("MSET").getIntValue());
     CHECK_EQUAL(0, mock().getData("PUBLISH").getIntValue());
     CHECK_EQUAL(1, mock().getData("RedisModule_FreeCallReply").getIntValue());
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -747,6 +822,7 @@ TEST(exstring, setmpub_command_negative_key_val_count)
     CHECK_EQUAL(0, mock().getData("PUBLISH").getIntValue());
     CHECK_EQUAL(1, mock().getData("RedisModule_ReplyWithError").getIntValue());
     CHECK_EQUAL(0, mock().getData("RedisModule_FreeCallReply").getIntValue());
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -778,6 +854,7 @@ TEST(exstring, setmpub_command_negative_chan_msg_count)
     CHECK_EQUAL(0, mock().getData("PUBLISH").getIntValue());
     CHECK_EQUAL(1, mock().getData("RedisModule_ReplyWithError").getIntValue());
     CHECK_EQUAL(0, mock().getData("RedisModule_FreeCallReply").getIntValue());
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -809,6 +886,7 @@ TEST(exstring, setmpub_command_invalid_total_count)
     CHECK_EQUAL(0, mock().getData("PUBLISH").getIntValue());
     CHECK_EQUAL(1, mock().getData("RedisModule_ReplyWithError").getIntValue());
     CHECK_EQUAL(0, mock().getData("RedisModule_FreeCallReply").getIntValue());
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -839,6 +917,7 @@ TEST(exstring, setmpub_command_set)
     CHECK_EQUAL(1, mock().getData("MSET").getIntValue());
     CHECK_EQUAL(1, mock().getData("PUBLISH").getIntValue());
     CHECK_EQUAL(2, mock().getData("RedisModule_FreeCallReply").getIntValue());
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -871,6 +950,7 @@ TEST(exstring, setmpub_command_set_multipub)
     CHECK_EQUAL(1, mock().getData("MSET").getIntValue());
     CHECK_EQUAL(2, mock().getData("PUBLISH").getIntValue());
     CHECK_EQUAL(3, mock().getData("RedisModule_FreeCallReply").getIntValue());
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -900,6 +980,7 @@ TEST(exstring, setxxpub_command_has_no_key)
     CHECK_EQUAL(mock().getData("MSET").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 0);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -928,6 +1009,7 @@ TEST(exstring, setxxpub_command_parameter_has_key_set)
     CHECK_EQUAL(mock().getData("MSET").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 0);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -957,6 +1039,7 @@ TEST(exstring, setxxpub_command_has_key_string)
     CHECK_EQUAL(mock().getData("MSET").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 2);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -987,6 +1070,7 @@ TEST(exstring, setnxpub_command_has_key_string)
     CHECK_EQUAL(mock().getData("MSET").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 0);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -1016,6 +1100,7 @@ TEST(exstring, setnxpub_command_has_no_key)
     CHECK_EQUAL(mock().getData("MSET").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 2);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -1048,6 +1133,7 @@ TEST(exstring, setiepub_command_has_no_key)
     CHECK_EQUAL(mock().getData("MSET").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 0);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -1080,6 +1166,7 @@ TEST(exstring, setiepub_command_key_string_nosame)
     CHECK_EQUAL(mock().getData("MSET").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -1111,6 +1198,7 @@ TEST(exstring, setiepub_command_key_same_string_replynull)
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithNull").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 2);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -1142,6 +1230,7 @@ TEST(exstring, setiepub_command_key_same_string_reply)
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithCallReply").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 3);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -1173,6 +1262,7 @@ TEST(exstring, setnepub_command_has_no_key)
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithCallReply").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 3);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 
@@ -1313,6 +1403,29 @@ TEST(exstring, deliepub)
     delete []redisStrVec;
 }
 
+TEST(exstring, deliempub)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[5]);
+
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)1;
+    redisStrVec[3] = (RedisModuleString *)1;
+    redisStrVec[4] = (RedisModuleString *)1;
+
+    mock().setData("RedisModule_OpenKey_have", 1);
+    mock().setData("RedisModule_KeyType_str", 1);
+    mock().setData("RedisModule_String_same", 1);
+    mock().setData("RedisModule_CallReplyType_null", 1);
+
+    mock().expectOneCall("RedisModule_CloseKey");
+    int ret = DelIEMPub_RedisCommand(&ctx, redisStrVec,  5);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
+    mock().checkExpectations();
+    delete []redisStrVec;
+}
+
 TEST(exstring, delnepub)
 {
     RedisModuleCtx ctx;
@@ -1349,6 +1462,10 @@ TEST(exstring, delpub_command_parameter_number_incorrect)
 
     ret = 0;
     ret = DelIEPub_RedisCommand(&ctx, 0, 4);
+    CHECK_EQUAL(ret, REDISMODULE_ERR);
+
+    ret = 0;
+    ret = DelIEMPub_RedisCommand(&ctx, 0, 4);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
     ret = 0;
@@ -1396,12 +1513,12 @@ TEST(exstring, delpub_command_reply_error)
     mock().setData("RedisModule_CallReplyType_err", 1);
 
     int ret = DelPub_RedisCommand(&ctx, redisStrVec, 5);
-    CHECK_EQUAL(ret, REDISMODULE_ERR);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
     CHECK_EQUAL(mock().getData("GET").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("UNLINK").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithCallReply").getIntValue(), 1);
-    CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithError").getIntValue(), 0);
     delete []redisStrVec;
 
@@ -1479,12 +1596,12 @@ TEST(exstring, delmpub_command_reply_error)
     mock().setData("RedisModule_StringToLongLongCall_2", 1);
 
     int ret = DelMPub_RedisCommand(&ctx, redisStrVec, 6);
-    CHECK_EQUAL(ret, REDISMODULE_ERR);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
     CHECK_EQUAL(mock().getData("GET").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("UNLINK").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("PUBLISH").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithCallReply").getIntValue(), 1);
-    CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithError").getIntValue(), 0);
     delete []redisStrVec;
 
@@ -1870,20 +1987,20 @@ TEST(exstring, delnepub_command_nosame_string_reply)
     delete []redisStrVec;
 }
 
-TEST(exstring, nget_command_parameter_number_incorrect)
+TEST(exstring, nget_atomic_command_parameter_number_incorrect)
 {
     RedisModuleCtx ctx;
     RedisModuleString ** redisStrVec = new (RedisModuleString*[2]);
     redisStrVec[0] = (RedisModuleString *)1;
     redisStrVec[1] = (RedisModuleString *)1;
 
-    int ret = NGet_RedisCommand(&ctx, redisStrVec,  3);
+    int ret = NGet_Atomic_RedisCommand(&ctx, redisStrVec,  3);
     CHECK_EQUAL(ret, REDISMODULE_ERR);
 
     delete []redisStrVec;
 }
 
-TEST(exstring, nget_command_zero_item)
+TEST(exstring, nget_atomic_command_zero_item)
 {
     RedisModuleCtx ctx;
     RedisModuleString ** redisStrVec = new (RedisModuleString*[2]);
@@ -1891,16 +2008,17 @@ TEST(exstring, nget_command_zero_item)
     redisStrVec[1] = (RedisModuleString *)1;
 
     mock().setData("RedisModule_CallReplyLength", 0);
-    int ret = NGet_RedisCommand(&ctx, redisStrVec,  2);
+    int ret = NGet_Atomic_RedisCommand(&ctx, redisStrVec,  2);
     CHECK_EQUAL(ret, REDISMODULE_OK);
-    CHECK_EQUAL(mock().getData("KEYS").getIntValue(), 1);
-    CHECK_EQUAL(mock().getData("RedisModule_ReplyWithCallReply").getIntValue(), 1);
-    CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 1);
+    //CHECK_EQUAL(mock().getData("KEYS").getIntValue(), 1);
+    //CHECK_EQUAL(mock().getData("RedisModule_ReplyWithCallReply").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(),0);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 }
 
-TEST(exstring, nget_command_none_zero_items)
+TEST(exstring, nget_atomic_command_none_zero_items)
 {
     RedisModuleCtx ctx;
     RedisModuleString ** redisStrVec = new (RedisModuleString*[2]);
@@ -1908,31 +2026,208 @@ TEST(exstring, nget_command_none_zero_items)
     redisStrVec[1] = (RedisModuleString *)1;
 
     mock().setData("RedisModule_CallReplyLength", 3);
-    int ret = NGet_RedisCommand(&ctx, redisStrVec,  2);
+    int ret = NGet_Atomic_RedisCommand(&ctx, redisStrVec,  2);
     CHECK_EQUAL(ret, REDISMODULE_OK);
-    CHECK_EQUAL(mock().getData("KEYS").getIntValue(), 1);
+    //CHECK_EQUAL(mock().getData("KEYS").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("MGET").getIntValue(), 1);
-    CHECK_EQUAL(mock().getData("RedisModule_ReplyWithArray").getIntValue(), 3*2);
+    CHECK_EQUAL(mock().getData("RedisModule_ReplyWithArray").getIntValue(), -1);
+    CHECK_EQUAL(mock().getData("RedisModule_ReplySetArrayLength").getIntValue(), 3*2);
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithString").getIntValue(), 3*2);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 2);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 }
 
-TEST(exstring, ndel_command_parameter_parameter_number_incorrect)
+TEST(exstring, nget_noatomic_thread_create_success)
 {
     RedisModuleCtx ctx;
     RedisModuleString ** redisStrVec = new (RedisModuleString*[2]);
     redisStrVec[0] = (RedisModuleString *)1;
     redisStrVec[1] = (RedisModuleString *)1;
 
-    int ret = NDel_RedisCommand(&ctx, redisStrVec,  3);
-    CHECK_EQUAL(ret, REDISMODULE_ERR);
+    mock().setData("pthread_create_ok", 1);
+
+    int ret = NGet_NoAtomic_RedisCommand(&ctx, redisStrVec,  3);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
+    CHECK_EQUAL(mock().getData("pthread_create").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_AbortBlock").getIntValue(), 0);
+    CHECK_EQUAL(mock().getData("RedisModule_ReplyWithError").getIntValue(), 0);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 }
 
-TEST(exstring, ndel_command_zero_item)
+TEST(exstring, nget_noatomic_thread_create_fail)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[2]);
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+
+    int ret = NGet_NoAtomic_RedisCommand(&ctx, redisStrVec,  3);
+    CHECK_EQUAL(ret, REDISMODULE_OK);
+    CHECK_EQUAL(mock().getData("pthread_create").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_AbortBlock").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_ReplyWithError").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
+
+    delete []redisStrVec;
+}
+
+TEST(exstring, nget_noatomic_threadmain_ok)
+{
+    RedisModuleCtx ctx;
+    RedisModuleBlockedClientArgs *bca = (RedisModuleBlockedClientArgs*)malloc(sizeof(RedisModuleBlockedClientArgs));
+    RedisModuleBlockedClient *bc = RedisModule_BlockClient(&ctx,NULL,NULL,NULL,0);
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[2]);
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+
+    bca->bc = bc;
+    bca->argv = redisStrVec;
+    bca->argc = 2;
+
+    mock().setData("RedisModule_CallReplyLength", 1);
+    mock().setData("RedisModule_Return_LongLong", 0);
+    NGet_NoAtomic_ThreadMain((void*)bca);
+    CHECK_EQUAL(mock().getData("SCAN").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("MGET").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 2);
+    CHECK_EQUAL(mock().getData("RedisModule_UnblockClient").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeThreadSafeContext").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeString").getIntValue(), 3);
+    CHECK_EQUAL(mock().getData("RedisModule_ReplySetArrayLength").getIntValue(), 2);
+    CHECK_EQUAL(mock().getData("RedisModule_ThreadSafeContextLock").getIntValue(), 1);
+
+    delete []redisStrVec;
+}
+
+TEST(exstring, nget_noatomic_threadmain_reply_null)
+{
+    RedisModuleCtx ctx;
+    RedisModuleBlockedClientArgs *bca = (RedisModuleBlockedClientArgs*)malloc(sizeof(RedisModuleBlockedClientArgs));
+    RedisModuleBlockedClient *bc = RedisModule_BlockClient(&ctx,NULL,NULL,NULL,0);
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[2]);
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+
+    bca->bc = bc;
+    bca->argv = redisStrVec;
+    bca->argc = 2;
+
+    mock().setData("RedisModule_CallReplyLength", 1);
+    mock().setData("RedisModule_Return_LongLong", 0);
+    mock().setData("RedisModule_Call_Return_Null", 0);
+
+    NGet_NoAtomic_ThreadMain((void*)bca);
+    CHECK_EQUAL(mock().getData("SCAN").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_ReplyWithError").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_ThreadSafeContextLock").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 0);
+    CHECK_EQUAL(mock().getData("RedisModule_UnblockClient").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeThreadSafeContext").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeString").getIntValue(), 0);
+    CHECK_EQUAL(mock().getData("RedisModule_ReplySetArrayLength").getIntValue(), 0);
+
+    delete []redisStrVec;
+}
+
+TEST(exstring, nget_noatomic_threadmain_parameter_number_incorrect)
+{
+    RedisModuleCtx ctx;
+
+    RedisModuleBlockedClientArgs *bca = (RedisModuleBlockedClientArgs*)malloc(sizeof(RedisModuleBlockedClientArgs));
+    RedisModuleBlockedClient *bc = RedisModule_BlockClient(&ctx,NULL,NULL,NULL,0);
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[2]);
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+
+    bca->bc = bc;
+    bca->argv = redisStrVec;
+    bca->argc = 3;
+
+    NGet_NoAtomic_ThreadMain((void*)bca);
+    CHECK_EQUAL(mock().getData("RedisModule_WrongArity").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_UnblockClient").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeThreadSafeContext").getIntValue(), 1);
+
+    delete []redisStrVec;
+}
+
+TEST(exstring, nget_noatomic_threadmain_parameter_incorrect_count_str)
+{
+    RedisModuleCtx ctx;
+    RedisModuleBlockedClientArgs *bca = (RedisModuleBlockedClientArgs*)malloc(sizeof(RedisModuleBlockedClientArgs));
+    RedisModuleBlockedClient *bc = RedisModule_BlockClient(&ctx,NULL,NULL,NULL,0);
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[4]);
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)1;
+    redisStrVec[3] = (RedisModuleString *)4;
+    
+
+    bca->bc = bc;
+    bca->argv = redisStrVec;
+    bca->argc = 4;
+
+    mock().setData("RedisModule_String_count1", 1);
+    
+    NGet_NoAtomic_ThreadMain((void*)bca);
+    CHECK_EQUAL(mock().getData("RedisModule_ReplyWithError").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_UnblockClient").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeThreadSafeContext").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeString").getIntValue(), 0);
+    CHECK_EQUAL(mock().getData("RedisModule_CreateString").getIntValue(), 0);
+    CHECK_EQUAL(mock().getData("RedisModule_StringToLongLong").getIntValue(), 0);
+
+    delete []redisStrVec;
+}
+
+TEST(exstring, nget_noatomic_threadmain_parameter_incorrect_count_val)
+{
+    RedisModuleCtx ctx;
+    RedisModuleBlockedClientArgs *bca = (RedisModuleBlockedClientArgs*)malloc(sizeof(RedisModuleBlockedClientArgs));
+    RedisModuleBlockedClient *bc = RedisModule_BlockClient(&ctx,NULL,NULL,NULL,0);
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[4]);
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+    redisStrVec[2] = (RedisModuleString *)1;
+    redisStrVec[3] = (RedisModuleString *)4;
+    
+
+    bca->bc = bc;
+    bca->argv = redisStrVec;
+    bca->argc = 4;
+
+    mock().setData("RedisModule_String_count", 1);
+    mock().setData("RedisModule_Return_LongLong", -1);
+    NGet_NoAtomic_ThreadMain((void*)bca);
+    CHECK_EQUAL(mock().getData("RedisModule_ReplyWithError").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_UnblockClient").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeThreadSafeContext").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_FreeString").getIntValue(), 0);
+    //CHECK_EQUAL(mock().getData("RedisModule_CreateString").getIntValue(), 2);
+    CHECK_EQUAL(mock().getData("RedisModule_StringToLongLong").getIntValue(), 0);
+
+    delete []redisStrVec;
+}
+
+TEST(exstring, ndel_atomic_command_parameter_parameter_number_incorrect)
+{
+    RedisModuleCtx ctx;
+    RedisModuleString ** redisStrVec = new (RedisModuleString*[2]);
+    redisStrVec[0] = (RedisModuleString *)1;
+    redisStrVec[1] = (RedisModuleString *)1;
+
+    int ret = NDel_Atomic_RedisCommand(&ctx, redisStrVec,  3);
+    CHECK_EQUAL(ret, REDISMODULE_ERR);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
+
+    delete []redisStrVec;
+}
+
+TEST(exstring, ndel_atomic_command_zero_item)
 {
     RedisModuleCtx ctx;
     RedisModuleString ** redisStrVec = new (RedisModuleString*[2]);
@@ -1940,16 +2235,17 @@ TEST(exstring, ndel_command_zero_item)
     redisStrVec[1] = (RedisModuleString *)1;
 
     mock().setData("RedisModule_CallReplyLength", 0);
-    int ret = NDel_RedisCommand(&ctx, redisStrVec,  2);
+    int ret = NDel_Atomic_RedisCommand(&ctx, redisStrVec,  2);
     CHECK_EQUAL(ret, REDISMODULE_OK);
-    CHECK_EQUAL(mock().getData("KEYS").getIntValue(), 1);
+   // CHECK_EQUAL(mock().getData("KEYS").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("RedisModule_ReplyWithLongLong").getIntValue(), 0);
     CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 1);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 }
 
-TEST(exstring, ndel_command_none_zero_items)
+TEST(exstring, ndel_atomic_command_none_zero_items)
 {
     RedisModuleCtx ctx;
     RedisModuleString ** redisStrVec = new (RedisModuleString*[2]);
@@ -1957,12 +2253,13 @@ TEST(exstring, ndel_command_none_zero_items)
     redisStrVec[1] = (RedisModuleString *)1;
 
     mock().setData("RedisModule_CallReplyLength", 3);
-    int ret = NDel_RedisCommand(&ctx, redisStrVec,  2);
+    int ret = NDel_Atomic_RedisCommand(&ctx, redisStrVec,  2);
     CHECK_EQUAL(ret, REDISMODULE_OK);
-    CHECK_EQUAL(mock().getData("KEYS").getIntValue(), 1);
+    //CHECK_EQUAL(mock().getData("KEYS").getIntValue(), 1);
     CHECK_EQUAL(mock().getData("UNLINK").getIntValue(), 1);
-    CHECK_EQUAL(mock().getData("RedisModule_ReplyWithCallReply").getIntValue(), 1);
-    CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 2);
+    //CHECK_EQUAL(mock().getData("RedisModule_ReplyWithCallReply").getIntValue(), 1);
+    //CHECK_EQUAL(mock().getData("RedisModule_FreeCallReply").getIntValue(), 2);
+    CHECK_EQUAL(mock().getData("RedisModule_AutoMemory").getIntValue(),1);
 
     delete []redisStrVec;
 }

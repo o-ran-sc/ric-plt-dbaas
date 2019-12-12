@@ -366,7 +366,6 @@ int RedisModule_ReplyWithNull(RedisModuleCtx *ctx);
 int RedisModule_ReplyWithCallReply(RedisModuleCtx *ctx, RedisModuleCallReply *reply);
 const char *RedisModule_CallReplyStringPtr(RedisModuleCallReply *reply, size_t *len);
 RedisModuleString *RedisModule_CreateStringFromCallReply(RedisModuleCallReply *reply);
-int RedisModule_StringToLongLong(const RedisModuleString *str, long long *ll);
 
 int RedisModule_KeyType(RedisModuleKey *kp);
 void RedisModule_CloseKey(RedisModuleKey *kp);
@@ -377,6 +376,19 @@ int RedisModule_Init(RedisModuleCtx *ctx, const char *name, int ver, int apiver)
 size_t RedisModule_CallReplyLength(RedisModuleCallReply *reply);
 RedisModuleCallReply *RedisModule_CallReplyArrayElement(RedisModuleCallReply *reply, size_t idx);
 int RedisModule_ReplyWithArray(RedisModuleCtx *ctx, long len);
+void RedisModule_FreeString(RedisModuleCtx *ctx, RedisModuleString *str);
+RedisModuleBlockedClient *RedisModule_BlockClient(RedisModuleCtx *ctx, RedisModuleCmdFunc reply_callback, RedisModuleCmdFunc timeout_callback, void (*free_privdata)(RedisModuleCtx*,void*), long long timeout_ms);
+int RedisModule_UnblockClient(RedisModuleBlockedClient *bc, void *privdata);
+int RedisModule_AbortBlock(RedisModuleBlockedClient *bc);
+RedisModuleString *RedisModule_CreateString(RedisModuleCtx *ctx, const char *ptr, size_t len);
+void RedisModule_FreeThreadSafeContext(RedisModuleCtx *ctx);
+int RedisModule_StringToLongLong(const RedisModuleString *str, long long *ll);
+void RedisModule_ThreadSafeContextLock(RedisModuleCtx *ctx);
+void RedisModule_ThreadSafeContextUnlock(RedisModuleCtx *ctx);
+void RedisModule_ReplySetArrayLength(RedisModuleCtx *ctx, long len);
+RedisModuleCtx *RedisModule_GetThreadSafeContext(RedisModuleBlockedClient *bc);
+RedisModuleString *RedisModule_CreateStringFromLongLong(RedisModuleCtx *ctx, long long ll);
+void RedisModule_AutoMemory(RedisModuleCtx *ctx);
 
 
 /* Things only defined for the modules core, not exported to modules

@@ -16,6 +16,13 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
+AC_ARG_ENABLE([unit-test],
+[  --enable-unit-test    Check for UT dependencies],
+[  PKG_CHECK_MODULES([LIBCPPUTEST],[cpputest])
+   UNIT_TEST_ENABLED=true
+],
+[  UNIT_TEST_ENABLED=false  ])
+AM_CONDITIONAL([UNIT_TEST_ENABLED], [$UNIT_TEST_ENABLED])
 
 # Checks for header files.
 
