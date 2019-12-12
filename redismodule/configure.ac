@@ -16,6 +16,15 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
+AC_ARG_ENABLE([unit-test],
+[  --enable-unit-test    Check for UT dependencies],
+[  PKG_CHECK_MODULES([LIBCPPUTEST],[cpputest])
+   AC_CHECK_PROG(VALGRIND_CHECK, valgrind, yes)
+   AS_IF([test x"$VALGRIND_CHECK" != x"yes"], [AC_MSG_ERROR([Install valgrind to run UT.])])
+   UNIT_TEST_ENABLED=true
+],
+[  UNIT_TEST_ENABLED=false  ])
+AM_CONDITIONAL([UNIT_TEST_ENABLED], [$UNIT_TEST_ENABLED])
 
 # Checks for header files.
 

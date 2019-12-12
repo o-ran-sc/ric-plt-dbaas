@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019 Nokia.
+ * Copyright (c) 2018-2020 Nokia.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -20,13 +20,8 @@
  */
 
 
-#include <CppUTest/TestHarness.h>
-#include <CppUTestExt/MockSupport.h>
 #include <unistd.h>
 #include <string.h>
-
-
-
 
 extern "C" {
 #include "redismodule.h"
@@ -34,6 +29,9 @@ extern "C" {
 #include <stdlib.h>
 #include <ctype.h>
 }
+
+#include <CppUTest/TestHarness.h>
+#include <CppUTestExt/MockSupport.h>
 
 
 int RedisModule_CreateCommand(RedisModuleCtx *ctx, const char *name, RedisModuleCmdFunc cmdfunc, const char *strflags, int firstkey, int lastkey, int keystep)
@@ -52,6 +50,7 @@ int RedisModule_CreateCommand(RedisModuleCtx *ctx, const char *name, RedisModule
 int RedisModule_WrongArity(RedisModuleCtx *ctx)
 {
     (void)ctx;
+    mock().setData("RedisModule_WrongArity", 1);
     return REDISMODULE_ERR;
 }
 
@@ -105,6 +104,8 @@ RedisModuleCallReply *RedisModule_Call(RedisModuleCtx *ctx, const char *cmdname,
         mock().setData("KEYS", 1);
     else if (!strcmp(cmdname, "MGET"))
         mock().setData("MGET", 1);
+    else if (!strcmp(cmdname, "SCAN"))
+        mock().setData("SCAN", 1);
 
     if (mock().hasData("RedisModule_Call_Return_Null"))
         return NULL;
@@ -157,7 +158,7 @@ const char *RedisModule_StringPtrLen(const RedisModuleString *str, size_t *len)
 {
 
     (void)str;
-    *len = 5;
+    if (len) *len = 5;
     if (mock().hasData("RedisModule_String_same"))
     {
         return "11111";
@@ -166,6 +167,17 @@ const char *RedisModule_StringPtrLen(const RedisModuleString *str, size_t *len)
     if (mock().hasData("RedisModule_String_nosame"))
     {
         return "22222";
+    }
+
+    if (mock().hasData("RedisModule_String_count"))
+    {
+        return "COUNT";
+    }
+
+    if (mock().hasData("RedisModule_String_count1"))
+    {
+        if (len) *len = 6;
+        return "COUNT1";
     }
 
     return "11111";
@@ -207,17 +219,17 @@ const char *RedisModule_CallReplyStringPtr(RedisModuleCallReply *reply, size_t *
 {
     (void)reply;
 
-    *len = 5;
-
     if (mock().hasData("RedisModule_String_same"))
     {
+        if (len)
+            *len = 5;
         return "11111";
     }
 
-
     if (mock().hasData("RedisModule_String_nosame"))
     {
-        *len = 6;
+        if (len)
+            *len = 6;
         return "333333";
     }
 
@@ -294,9 +306,62 @@ int RedisModule_ReplyWithArray(RedisModuleCtx *ctx, long len)
     return REDISMODULE_OK;
 }
 
+void RedisModule_FreeString(RedisModuleCtx *ctx, RedisModuleString *str)
+{
+    (void)ctx;
+    (void)str;
+    mock().setData("RedisModule_FreeString", mock().getData("RedisModule_FreeString").getIntValue()+1);
+    return;
+}
+
+RedisModuleBlockedClient *RedisModule_BlockClient(RedisModuleCtx *ctx, RedisModuleCmdFunc reply_callback, RedisModuleCmdFunc timeout_callback, void (*free_privdata)(RedisModuleCtx*,void*), long long timeout_ms)
+{
+    (void)ctx;
+    (void)reply_callback;
+    (void)timeout_callback;
+    (void)free_privdata;
+    (void)timeout_ms;
+    RedisModuleBlockedClient *bc = (RedisModuleBlockedClient*)malloc(sizeof(RedisModuleBlockedClient));
+    mock().setData("RedisModule_BlockClient", 1);
+    return bc;
+}
+
+int RedisModule_UnblockClient(RedisModuleBlockedClient *bc, void *privdata)
+{
+    (void)privdata;
+    free(bc);
+    mock().setData("RedisModule_UnblockClient", mock().getData("RedisModule_UnblockClient").getIntValue()+1);
+    return REDISMODULE_OK;
+}
+
+int RedisModule_AbortBlock(RedisModuleBlockedClient *bc)
+{
+    free(bc);
+    mock().setData("RedisModule_AbortBlock", 1);
+    return REDISMODULE_OK;
+}
+
+RedisModuleString *RedisModule_CreateString(RedisModuleCtx *ctx, const char *ptr, size_t len)
+{
+    (void)ctx;
+    (void)ptr;
+    (void)len;
+    RedisModuleString *rms = (RedisModuleString*)malloc(sizeof(RedisModuleString));
+    mock().setData("RedisModule_CreateString", mock().getData("RedisModule_CreateString").getIntValue()+1);
+    return rms;
+}
+
+void RedisModule_FreeThreadSafeContext(RedisModuleCtx *ctx)
+{
+    (void)ctx;
+    mock().setData("RedisModule_FreeThreadSafeContext", 1);
+    return;
+}
+
 int RedisModule_StringToLongLong(const RedisModuleString *str, long long *ll)
 {
-    (void) str;
+    (void)str;
+
     int call_no = mock().getData("RedisModule_StringToLongLongCallCount").getIntValue();
     switch(call_no) {
         case 0:
@@ -310,4 +375,63 @@ int RedisModule_StringToLongLong(const RedisModuleString *str, long long *ll)
     }
     mock().setData("RedisModule_StringToLongLongCallCount", call_no + 1);
     return REDISMODULE_OK;
+}
+
+void RedisModule_ThreadSafeContextLock(RedisModuleCtx *ctx)
+{
+    (void)ctx;
+    mock().setData("RedisModule_ThreadSafeContextLock", 1);
+    return;
+}
+
+void RedisModule_ThreadSafeContextUnlock(RedisModuleCtx *ctx)
+{
+    (void)ctx;
+    mock().setData("RedisModule_ThreadSafeContextLock", 1);
+    return;
+}
+
+void RedisModule_ReplySetArrayLength(RedisModuleCtx *ctx, long len)
+{
+    (void)ctx;
+    mock().setData("RedisModule_ReplySetArrayLength", (int)len);
+    return;
+}
+
+RedisModuleCtx *RedisModule_GetThreadSafeContext(RedisModuleBlockedClient *bc)
+{
+    (void) bc;
+    mock().setData("RedisModule_GetThreadSafeContext", 1);
+    return NULL;
+}
+
+RedisModuleString *RedisModule_CreateStringFromLongLong(RedisModuleCtx *ctx, long long ll)
+{
+    (void)ctx;
+    (void)ll;
+    RedisModuleString *rms = (RedisModuleString*)malloc(sizeof(RedisModuleString));
+    mock().setData("RedisModule_CreateStringFromLongLong", mock().getData("RedisModule_CreateStringFromLongLong").getIntValue()+1);
+    return rms;
+}
+
+void RedisModule_AutoMemory(RedisModuleCtx *ctx)
+{
+    (void)ctx;
+    int old = mock().getData("RedisModule_AutoMemory").getIntValue();
+    mock().setData("RedisModule_AutoMemory", old + 1);
+    return;
+}
+
+void *RedisModule_Alloc(size_t bytes)
+{
+    mock()
+        .actualCall("RedisModule_Alloc");
+    return malloc(bytes);
+}
+
+void RedisModule_Free(void *ptr)
+{
+    mock()
+        .actualCall("RedisModule_Free");
+    free(ptr);
 }
