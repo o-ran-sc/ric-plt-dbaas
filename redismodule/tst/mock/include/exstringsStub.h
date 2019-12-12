@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019 Nokia.
+ * Copyright (c) 2018-2020 Nokia.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "../../../../redismodule/tst/mock/include/redismodule.h"
 
 int setStringGenericCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc, const int flag);
 int SetIE_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
@@ -40,15 +39,15 @@ int DelNE_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int SetPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int SetMPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int SetIEPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
+int SetIEMPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int SetNEPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int SetNXPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
+int SetNXMPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int SetXXPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int DelPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int DelMPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int DelIEPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
+int DelIEMPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int DelNEPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
-int NGet_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
-int NDel_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
-
 
 #endif
