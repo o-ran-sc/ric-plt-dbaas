@@ -3,6 +3,26 @@
 This subdirectory provides implementation for the commands which are implemented
 as a [Redis modules](https://redis.io/topics/modules-intro).
 
+# Compiling and UT (Unit Tests)
+
+To compile and install run standard automake commands
+in the redismodule directory:
+```
+./autogen.sh
+./configure
+make
+make install
+```
+
+To run unit tests `cpputest` and `valgrind`
+need to be installed as additional dependencies.
+To enable and run unit tests use the commands:
+```
+./autogen.sh
+./configure --enable-unit-test
+make test
+```
+
 # Commands
 
 ## SETIE key value oldvalue [expiration EX seconds|PX milliseconds]

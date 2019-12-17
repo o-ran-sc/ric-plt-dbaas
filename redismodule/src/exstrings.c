@@ -35,6 +35,7 @@
 #include "commonStub.h"
 #endif
 
+
 /* make sure the response is not NULL or an error.
 sends the error to the client and exit the current function if its */
 #define  ASSERT_NOERROR(r) \
@@ -58,24 +59,15 @@ sends the error to the client and exit the current function if its */
 
 RedisModuleString *def_count_str = NULL, *match_str = NULL, *count_str = NULL, *zero_str = NULL;
 
+typedef struct _NgetArgs {
+    RedisModuleString *key;
+    RedisModuleString *count;
+} NgetArgs;
+
 typedef struct RedisModuleBlockedClientArgs {
     RedisModuleBlockedClient *bc;
-    RedisModuleString **argv;
-    int argc;
+    NgetArgs nget_args;
 } RedisModuleBlockedClientArgs;
-
-/* Return the UNIX time in microseconds */
-#if 0
-long long ustime(void) {
-    struct timeval tv;
-    long long ust;
-
-    gettimeofday(&tv, NULL);
-    ust = ((long long)tv.tv_sec)*1000000;
-    ust += tv.tv_usec;
-    return ust;
-}
-#endif
 
 void InitStaticVariable()
 {
@@ -123,6 +115,214 @@ typedef struct _DelParams {
     RedisModuleString **keys;
     size_t length;
 } DelParams;
+
+typedef enum _ExstringsStatus {
+    EXSTRINGS_STATUS_NO_ERRORS = 0,
+    EXSTRINGS_STATUS_ERROR_AND_REPLY_SENT
+} ExstringsStatus;
+
+void readNgetArgs(RedisModuleCtx *ctx, RedisModuleString **argv, int argc,
+                  NgetArgs* nget_args, ExstringsStatus* status)
+{
+    size_t str_len;
+    long long number;
+
+    if(argc == 2) {
+        nget_args->key = argv[1];
+        nget_args->count = def_count_str;
+    } else if (argc == 4) {
+        if (strcasecmp(RedisModule_StringPtrLen(argv[2], &str_len), "count")) {
+            RedisModule_ReplyWithError(ctx,"-ERR syntax error");
+            *status = EXSTRINGS_STATUS_ERROR_AND_REPLY_SENT;
+            return;
+        }
+
+        int ret = RedisModule_StringToLongLong(argv[3], &number) != REDISMODULE_OK;
+        if (ret != REDISMODULE_OK || number < 1) {
+            RedisModule_ReplyWithError(ctx,"-ERR value is not an integer or out of range");
+            *status = EXSTRINGS_STATUS_ERROR_AND_REPLY_SENT;
+            return;
+        }
+
+        nget_args->key = argv[1];
+        nget_args->count = argv[3];
+    } else {
+        /* In redis there is a bug (or undocumented feature see link)
+         * where calling 'RedisModule_WrongArity'
+         * within a blocked client will crash redis.
+         *
+         * Therefore we need to call this function to validate args
+         * before putting the client into blocking mode.
+         *
+         * Link to issue:
+         * https://github.com/antirez/redis/issues/6382
+         * 'If any thread tries to access the command arguments from
+         *  within the ThreadSafeContext they will crash redis' */
+        RedisModule_WrongArity(ctx);
+        *status = EXSTRINGS_STATUS_ERROR_AND_REPLY_SENT;
+        return;
+    }
+
+    *status = EXSTRINGS_STATUS_NO_ERRORS;
+    return;
+}
+
+long long callReplyLongLong(RedisModuleCallReply* reply)
+{
+    const char* cursor_str_ptr = RedisModule_CallReplyStringPtr(reply, NULL);
+    return strtoll(cursor_str_ptr, NULL, 10);
+}
+
+void forwardIfError(RedisModuleCtx *ctx, RedisModuleCallReply *reply, ExstringsStatus* status)
+{
+    if (RedisModule_CallReplyType(reply) == REDISMODULE_REPLY_ERROR) {
+        RedisModule_ReplyWithCallReply(ctx, reply);
+        RedisModule_FreeCallReply(reply);
+        *status = EXSTRINGS_STATUS_ERROR_AND_REPLY_SENT;
+    }
+    *status = EXSTRINGS_STATUS_NO_ERRORS;
+}
+
+typedef struct _ScannedKeys {
+    RedisModuleString **keys;
+    size_t len;
+} ScannedKeys;
+
+ScannedKeys* allocScannedKeys(size_t len)
+{
+    ScannedKeys *sk = RedisModule_Alloc(sizeof(ScannedKeys));
+    sk->len = len;
+    sk->keys = RedisModule_Alloc(sizeof(RedisModuleString *)*len);
+    return sk;
+}
+
+void freeScannedKeys(RedisModuleCtx *ctx, ScannedKeys* sk)
+{
+    if (sk) {
+        size_t j;
+        for (j = 0; j < sk->len; j++) {
+            RedisModule_FreeString(ctx, sk->keys[j]);
+        }
+        RedisModule_Free(sk->keys);
+    }
+    RedisModule_Free(sk);
+}
+
+typedef struct _ScanSomeState {
+    RedisModuleString *key;
+    RedisModuleString *count;
+    long long cursor;
+} ScanSomeState;
+
+ScannedKeys *scanSome(RedisModuleCtx* ctx, ScanSomeState* state, ExstringsStatus* status)
+{
+    RedisModuleString *scanargv[SCANARGC] = {NULL};
+
+    scanargv[0] = RedisModule_CreateStringFromLongLong(ctx, state->cursor);
+    scanargv[1] = match_str;
+    scanargv[2] = state->key;
+    scanargv[3] = count_str;
+    scanargv[4] = state->count;
+
+    RedisModuleCallReply *reply;
+    reply = RedisModule_Call(ctx, "SCAN", "v", scanargv, SCANARGC);
+    RedisModule_FreeString(ctx, scanargv[0]);
+    forwardIfError(ctx, reply, status);
+    if (*status == EXSTRINGS_STATUS_ERROR_AND_REPLY_SENT) {
+        return NULL;
+    }
+
+    state->cursor = callReplyLongLong(RedisModule_CallReplyArrayElement(reply, 0));
+    RedisModuleCallReply *cr_keys =
+        RedisModule_CallReplyArrayElement(reply, 1);
+
+    size_t scanned_keys_len = RedisModule_CallReplyLength(cr_keys);
+    if (scanned_keys_len == 0) {
+        RedisModule_FreeCallReply(reply);
+        *status = EXSTRINGS_STATUS_NO_ERRORS;
+        return NULL;
+    }
+
+    ScannedKeys *scanned_keys = allocScannedKeys(scanned_keys_len);
+    scanned_keys->len = scanned_keys_len;
+    size_t j;
+    for (j = 0; j < scanned_keys_len; j++) {
+        RedisModuleString *rms = RedisModule_CreateStringFromCallReply(RedisModule_CallReplyArrayElement(cr_keys,j));
+        scanned_keys->keys[j] = rms;
+    }
+    RedisModule_FreeCallReply(reply);
+    *status = EXSTRINGS_STATUS_NO_ERRORS;
+    return scanned_keys;
+}
+
+inline void unlockThreadsafeContext(RedisModuleCtx *ctx, bool using_threadsafe_context)
+{
+    if (using_threadsafe_context)
+        RedisModule_ThreadSafeContextUnlock(ctx);
+}
+
+inline void lockThreadsafeContext(RedisModuleCtx *ctx, bool using_threadsafe_context)
+{
+    if (using_threadsafe_context)
+        RedisModule_ThreadSafeContextLock(ctx);
+}
+
+int Nget_RedisCommand(RedisModuleCtx *ctx, NgetArgs* nget_args, bool using_threadsafe_context)
+{
+    int ret = REDISMODULE_OK;
+    size_t replylen = 0;
+    RedisModuleCallReply *reply = NULL;
+    ExstringsStatus status;
+    ScanSomeState scan_state;
+    ScannedKeys *scanned_keys;
+
+    scan_state.key = nget_args->key;
+    scan_state.count = nget_args->count;
+    scan_state.cursor = 0;
+
+    RedisModule_ReplyWithArray(ctx, REDISMODULE_POSTPONED_ARRAY_LEN);
+    do {
+        lockThreadsafeContext(ctx, using_threadsafe_context);
+
+        scanned_keys = scanSome(ctx, &scan_state, &status);
+
+        if (status != EXSTRINGS_STATUS_NO_ERRORS) {
+            unlockThreadsafeContext(ctx, using_threadsafe_context);
+            ret = REDISMODULE_ERR;
+            break;
+        } else if (scanned_keys == NULL) {
+            unlockThreadsafeContext(ctx, using_threadsafe_context);
+            continue;
+        }
+
+        reply = RedisModule_Call(ctx, "MGET", "v", scanned_keys->keys, scanned_keys->len);
+
+        unlockThreadsafeContext(ctx, using_threadsafe_context);
+
+        forwardIfError(ctx, reply, &status);
+        if (status != EXSTRINGS_STATUS_NO_ERRORS) {
+            freeScannedKeys(ctx, scanned_keys);
+            ret = REDISMODULE_ERR;
+            break;
+        }
+
+        size_t i;
+        for (i = 0; i < scanned_keys->len; i++) {
+            RedisModuleString *rms = RedisModule_CreateStringFromCallReply(RedisModule_CallReplyArrayElement(reply, i));
+            if (rms) {
+                RedisModule_ReplyWithString(ctx, scanned_keys->keys[i]);
+                RedisModule_ReplyWithString(ctx, rms);
+                RedisModule_FreeString(ctx, rms);
+                replylen += 2;
+            }
+        }
+        RedisModule_FreeCallReply(reply);
+        freeScannedKeys(ctx, scanned_keys);
+    } while (scan_state.cursor != 0);
+
+    RedisModule_ReplySetArrayLength(ctx,replylen);
+    return ret;
+}
 
 void multiPubCommand(RedisModuleCtx *ctx, PubParams* pubParams)
 {
@@ -270,146 +470,6 @@ int DelNE_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
     return delStringGenericCommand(ctx, argv, argc, OBJ_OP_NE);
 }
 
-int Nget_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc, bool locked)
-{
-    int ret = REDISMODULE_OK;
-    long long cursor = 0, number = 0;
-    size_t replylen = 0, str_len;
-    RedisModuleString *scanargv[SCANARGC] = {NULL};
-    RedisModuleString *key = NULL, *count = NULL;
-    RedisModuleCallReply *reply = NULL;
-
-    InitStaticVariable();
-
-    if (argc == 2) {
-        key = argv[1];
-        count = def_count_str;
-    } else if (argc == 4) {
-        if (!strcasecmp(RedisModule_StringPtrLen(argv[2], &str_len), "count")) {
-            if (RedisModule_StringToLongLong(argv[3], &number) != REDISMODULE_OK) {
-                RedisModule_ReplyWithError(ctx,"-ERR value is not an integer or out of range");
-                ret = REDISMODULE_ERR;
-                goto out;
-            }
-
-            if (number < 1) {
-                RedisModule_ReplyWithError(ctx,"-ERR syntax error");
-                ret = REDISMODULE_ERR;
-                goto out;
-            }
-
-            key = argv[1];
-            count = argv[3];
-        } else {
-            RedisModule_ReplyWithError(ctx,"-ERR syntax error");
-            ret = REDISMODULE_ERR;
-            goto out;
-        }
-    } else {
-        RedisModule_WrongArity(ctx);
-        ret = REDISMODULE_ERR;
-        goto out;
-    }
-
-    scanargv[0] = zero_str;
-    scanargv[1] = match_str;
-    scanargv[2] = key;
-    scanargv[3] = count_str;
-    scanargv[4] = count;
-
-    RedisModule_ReplyWithArray(ctx,REDISMODULE_POSTPONED_ARRAY_LEN);
-    do {
-        if (locked == true)
-            RedisModule_ThreadSafeContextLock(ctx);
-
-        reply = RedisModule_Call(ctx, "SCAN", "v", scanargv, SCANARGC);
-        if (reply == NULL) {
-            RedisModule_ReplyWithError(ctx,"ERR reply is NULL");
-            if (locked == true)
-                RedisModule_ThreadSafeContextUnlock(ctx);
-            ret = REDISMODULE_ERR;
-            break;
-        } else if (RedisModule_CallReplyType(reply) == REDISMODULE_REPLY_ERROR) {
-            RedisModule_ReplyWithCallReply(ctx,reply);
-            RedisModule_FreeCallReply(reply);
-            if (locked == true)
-                RedisModule_ThreadSafeContextUnlock(ctx);
-            ret = REDISMODULE_ERR;
-            break;
-        }
-
-        RedisModuleCallReply *cr_cursor =
-            RedisModule_CallReplyArrayElement(reply,0);
-        RedisModuleCallReply *cr_keys =
-            RedisModule_CallReplyArrayElement(reply,1);
-
-        if (scanargv[0] != zero_str)
-            RedisModule_FreeString(ctx,scanargv[0]);
-
-        scanargv[0] = RedisModule_CreateStringFromCallReply(cr_cursor);
-        RedisModule_StringToLongLong(scanargv[0],&cursor);
-
-        size_t items = RedisModule_CallReplyLength(cr_keys);
-        if (items == 0) {
-            if (locked == true)
-                RedisModule_ThreadSafeContextUnlock(ctx);
-            continue;
-        }
-
-        RedisModuleString *cmdargv[items];
-        size_t i=0, j;
-        for (j = 0; j < items; j++) {
-           RedisModuleString *rms = RedisModule_CreateStringFromCallReply(RedisModule_CallReplyArrayElement(cr_keys,j));
-           if (rms)
-               cmdargv[i++] = rms;
-        }
-        RedisModule_FreeCallReply(reply);
-
-        reply = RedisModule_Call(ctx, "MGET", "v", cmdargv, i);
-        if (locked == true)
-            RedisModule_ThreadSafeContextUnlock(ctx);
-        if (reply == NULL) {
-            RedisModule_ReplyWithError(ctx,"ERR reply is NULL");
-            for (j = 0; j < items; j++) {
-                RedisModule_FreeString(ctx,cmdargv[j]);
-            }
-
-            ret = REDISMODULE_ERR;
-            break;
-        } else if (RedisModule_CallReplyType(reply) == REDISMODULE_REPLY_ERROR) {
-            RedisModule_ReplyWithCallReply(ctx,reply);
-            RedisModule_FreeCallReply(reply);
-            for (j = 0; j < items; j++) {
-                RedisModule_FreeString(ctx,cmdargv[j]);
-            }
-            ret = REDISMODULE_ERR;
-            break;
-        }
-
-        items = RedisModule_CallReplyLength(reply);
-        for (j = 0; (j<items && j<i); j++) {
-            RedisModuleString *rms = RedisModule_CreateStringFromCallReply(RedisModule_CallReplyArrayElement(reply, j));
-            if (rms) {
-                RedisModule_ReplyWithString(ctx, cmdargv[j]);
-                RedisModule_ReplyWithString(ctx, rms);
-                RedisModule_FreeString(ctx, rms);
-                replylen += 2;
-            }
-        }
-        RedisModule_FreeCallReply(reply);
-        for (j = 0; j < items; j++) {
-            RedisModule_FreeString(ctx,cmdargv[j]);
-        }
-    } while (cursor != 0);
-
-    RedisModule_ReplySetArrayLength(ctx,replylen);
-
-out:
-    if (scanargv[0] && scanargv[0] != zero_str)
-        RedisModule_FreeString(ctx,scanargv[0]);
-    return ret;
-}
-
 /* The thread entry point that actually executes the blocking part
  * of the command nget.noatomic
  */
@@ -417,13 +477,12 @@ void *NGet_NoAtomic_ThreadMain(void *arg)
 {
     RedisModuleBlockedClientArgs *bca = arg;
     RedisModuleBlockedClient *bc = bca->bc;
-    int argc = bca->argc;
-    RedisModuleString **argv = bca->argv;
     RedisModuleCtx *ctx = RedisModule_GetThreadSafeContext(bc);
-    Nget_RedisCommand(ctx, argv, argc, true);
+
+    Nget_RedisCommand(ctx, &bca->nget_args, true);
     RedisModule_FreeThreadSafeContext(ctx);
     RedisModule_UnblockClient(bc, NULL);
-    free(bca);
+    RedisModule_Free(bca);
     return NULL;
 }
 
@@ -432,10 +491,20 @@ int NGet_NoAtomic_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, in
     RedisModule_AutoMemory(ctx);
     pthread_t tid;
 
-    RedisModuleBlockedClientArgs *bca = malloc(sizeof(RedisModuleBlockedClientArgs));
+    InitStaticVariable();
+
+    RedisModuleBlockedClientArgs *bca = RedisModule_Alloc(sizeof(RedisModuleBlockedClientArgs));
     if (bca == NULL) {
         RedisModule_ReplyWithError(ctx,"-ERR Out of memory");
+        RedisModule_Free(bca);
         return REDISMODULE_OK;
+    }
+
+    ExstringsStatus status;
+    readNgetArgs(ctx, argv, argc, &bca->nget_args, &status);
+    if (status != EXSTRINGS_STATUS_NO_ERRORS) {
+        RedisModule_Free(bca);
+        return REDISMODULE_ERR;
     }
 
     /* Note that when blocking the client we do not set any callback: no
@@ -444,25 +513,33 @@ int NGet_NoAtomic_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, in
     RedisModuleBlockedClient *bc = RedisModule_BlockClient(ctx,NULL,NULL,NULL,0);
 
     bca->bc = bc;
-    bca->argc = argc;
-    bca->argv = argv;
 
     /* Now that we setup a blocking client, we need to pass the control
      * to the thread. However we need to pass arguments to the thread:
      * the reference to the blocked client handle. */
     if (pthread_create(&tid,NULL,NGet_NoAtomic_ThreadMain,bca) != 0) {
         RedisModule_AbortBlock(bc);
-        free(bca);
+        RedisModule_Free(bca);
         return RedisModule_ReplyWithError(ctx,"-ERR Can't start thread");
     }
-    return REDISMODULE_OK;
 
+    return REDISMODULE_OK;
 }
 
 int NGet_Atomic_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
 {
     RedisModule_AutoMemory(ctx);
-    return Nget_RedisCommand(ctx, argv, argc, false);
+    NgetArgs nget_args;
+    ExstringsStatus status;
+
+    InitStaticVariable();
+
+    readNgetArgs(ctx, argv, argc, &nget_args, &status);
+    if (status != EXSTRINGS_STATUS_NO_ERRORS) {
+        return REDISMODULE_ERR;
+    }
+
+    return Nget_RedisCommand(ctx, &nget_args, false);
 }
 
 int NDel_Atomic_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
@@ -572,13 +649,8 @@ int setPubStringCommon(RedisModuleCtx *ctx, SetParams* setParamsPtr, PubParams* 
     RedisModuleCallReply *setReply;
     setReply = RedisModule_Call(ctx, "MSET", "v!", setParamsPtr->key_val_pairs, setParamsPtr->length);
     ASSERT_NOERROR(setReply)
-    int replytype = RedisModule_CallReplyType(setReply);
-    if (replytype == REDISMODULE_REPLY_NULL) {
-        RedisModule_ReplyWithNull(ctx);
-    } else {
-        multiPubCommand(ctx, pubParamsPtr);
-        RedisModule_ReplyWithCallReply(ctx, setReply);
-    }
+    multiPubCommand(ctx, pubParamsPtr);
+    RedisModule_ReplyWithCallReply(ctx, setReply);
     RedisModule_FreeCallReply(setReply);
     return REDISMODULE_OK;
 }

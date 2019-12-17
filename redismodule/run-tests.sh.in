@@ -1,6 +1,7 @@
 #!/bin/sh
 
-./redismodule_ut
+valgrind --leak-check=full ./redismodule_ut2
+valgrind --leak-check=full ./redismodule_ut
 if [ $? != 0 ]
 then
    exit -1

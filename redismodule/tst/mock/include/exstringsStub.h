@@ -54,5 +54,4 @@ int NGet_NoAtomic_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, in
 int NDel_Atomic_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 void *NGet_NoAtomic_ThreadMain(void *arg);
 
-
 #endif
