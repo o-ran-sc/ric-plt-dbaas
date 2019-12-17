@@ -27,7 +27,7 @@ clean-local:
 if UNIT_TEST_ENABLED
 # UT
 CPP_U_TEST=$(CPP_U_TEST_LATEST)
-check_PROGRAMS = redismodule_ut
+check_PROGRAMS = redismodule_ut redismodule_ut2
 #TESTS = ${check_PROGRAMS}
 redismodule_ut_SOURCES = \
 	tst/mock/include/redismodule.h  \
@@ -48,7 +48,8 @@ redismodule_ut_CFLAGS = \
 		-I${top_srcdir}/tst/mock/include \
 		-I${includedir} \
 		-I${top_srcdir}/include \
-		-I${CPP_U_TEST_LATEST}/include
+		-I${CPP_U_TEST_LATEST}/include \
+		-Wall -Werror -Wextra
 
 redismodule_ut_CXXFLAGS = \
 	-std=c++11 -g -Wall \
@@ -58,13 +59,52 @@ redismodule_ut_CXXFLAGS = \
 	-I${top_srcdir}/tst/mock/include \
 	-I${includedir} \
 	-I${top_srcdir}/include \
-	-I${CPP_U_TEST_LATEST}/include
+	-I${CPP_U_TEST_LATEST}/include \
+	-Wall -Werror -Wextra
 
 
 redismodule_ut_LDFLAGS = -Wl,-rpath=${libdir} ${UT_COVERAGE_LDFLAGS}
 redismodule_ut_LDADD = -L${libdir} $(LIBCPPUTEST_LIBS) -lgcov
 
-test: redismodule_ut
+redismodule_ut2_SOURCES = \
+	tst/mock/include/redismodule.h  \
+	tst/mock/include/exstringsStub.h \
+	tst/mock/include/commonStub.h \
+	src/exstrings.c \
+	tst/mock/src/redismoduleNewStub.cpp \
+	tst/mock/src/commonStub.cpp \
+	tst/src/main.cpp \
+	tst/src/exstrings_nget_test.cpp
+
+
+redismodule_ut2_CFLAGS = \
+		-std=c11 -g -Wall \
+		-fprofile-arcs -ftest-coverage \
+		-D__UT__ \
+		$(LIBCPPUTEST_CFLAGS) \
+		-I${top_srcdir}/tst/mock/include \
+		-I${includedir} \
+		-I${top_srcdir}/include \
+		-I${CPP_U_TEST_LATEST}/include \
+		-Wall -Werror -Wextra
+
+redismodule_ut2_CXXFLAGS = \
+	-std=c++11 -g -Wall \
+	-fprofile-arcs -ftest-coverage \
+	-D__UT__ \
+	$(LIBCPPUTEST_CFLAGS) \
+	-I${top_srcdir}/tst/mock/include \
+	-I${includedir} \
+	-I${top_srcdir}/include \
+	-I${CPP_U_TEST_LATEST}/include \
+	-Wall -Werror -Wextra
+
+
+redismodule_ut2_LDFLAGS = -Wl,-rpath=${libdir} ${UT_COVERAGE_LDFLAGS}
+redismodule_ut2_LDADD = -L${libdir} $(LIBCPPUTEST_LIBS) -lgcov
+
+
+test: redismodule_ut redismodule_ut2
 	./run-tests.sh
 
 TESTS = run-tests.sh
