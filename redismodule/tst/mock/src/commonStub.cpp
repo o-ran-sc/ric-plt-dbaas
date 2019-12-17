@@ -24,6 +24,7 @@
 #include <string.h>
 
 extern "C" {
+#include "redismodule.h"
 #include "commonStub.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,14 +33,27 @@ extern "C" {
 
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
+#include <CppUTest/MemoryLeakDetectorMallocMacros.h>
+
+typedef struct RedisModuleBlockedClientArgs {
+    RedisModuleBlockedClient *bc;
+    RedisModuleString **argv;
+    int argc;
+} RedisModuleBlockedClientArgs;
 
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
                           void *(*start_routine) (void *), void *arg)
 {
-    mock().setData("pthread_create", 1);
+    (void)thread;
+    (void)attr;
+    (void)start_routine;
+    if (mock().getData("pthread_create_free_block_client_args").getIntValue()) {
+        RedisModuleBlockedClientArgs* bca = (RedisModuleBlockedClientArgs*)arg;
+        free(bca->bc);
+        free(bca);
+    }
 
-    if (mock().hasData("pthread_create_ok"))
-        return 0;
-    else
-        return 1;
+    return mock()
+        .actualCall("pthread_create")
+        .returnIntValueOrDefault(0);
 }
