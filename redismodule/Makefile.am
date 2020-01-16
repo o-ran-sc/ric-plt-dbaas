@@ -67,14 +67,17 @@ redismodule_ut_LDFLAGS = -Wl,-rpath=${libdir} ${UT_COVERAGE_LDFLAGS}
 redismodule_ut_LDADD = -L${libdir} $(LIBCPPUTEST_LIBS) -lgcov
 
 redismodule_ut2_SOURCES = \
+	src/exstrings.c \
+	tst/include/ut_helpers.hpp \
 	tst/mock/include/redismodule.h  \
 	tst/mock/include/exstringsStub.h \
 	tst/mock/include/commonStub.h \
-	src/exstrings.c \
 	tst/mock/src/redismoduleNewStub.cpp \
 	tst/mock/src/commonStub.cpp \
+	tst/src/exstrings_ndel_test.cpp \
+	tst/src/exstrings_nget_test.cpp \
 	tst/src/main.cpp \
-	tst/src/exstrings_nget_test.cpp
+	tst/src/ut_helpers.cpp
 
 
 redismodule_ut2_CFLAGS = \
@@ -94,6 +97,7 @@ redismodule_ut2_CXXFLAGS = \
 	-D__UT__ \
 	$(LIBCPPUTEST_CFLAGS) \
 	-I${top_srcdir}/tst/mock/include \
+	-I${top_srcdir}/tst/include \
 	-I${includedir} \
 	-I${top_srcdir}/include \
 	-I${CPP_U_TEST_LATEST}/include \

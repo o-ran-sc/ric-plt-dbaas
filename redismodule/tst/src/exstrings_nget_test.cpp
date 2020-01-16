@@ -27,6 +27,8 @@ extern "C" {
 #include "CppUTest/TestHarness.h"
 #include "CppUTestExt/MockSupport.h"
 
+#include "ut_helpers.hpp"
+
 TEST_GROUP(exstrings_nget)
 {
     void setup()
@@ -42,25 +44,6 @@ TEST_GROUP(exstrings_nget)
     }
 
 };
-
-RedisModuleString **createRedisStrVec(size_t size)
-{
-    RedisModuleString ** redisStrVec = new RedisModuleString*[size];
-    for (size_t i = 0 ; i < size ; i++) {
-        redisStrVec[i] = (RedisModuleString *)1;
-    }
-    return redisStrVec;
-}
-
-void returnNKeysFromScan(long keys)
-{
-    mock().expectOneCall("RedisModule_CallReplyLength")
-          .andReturnValue((int)keys);
-    for (long i = 0 ; i < keys ; i++) {
-        mock().expectOneCall("RedisModule_CreateStringFromCallReply")
-              .andReturnValue(malloc(1));
-    }
-}
 
 void nKeysFoundMget(long keys)
 {
@@ -192,7 +175,7 @@ TEST(exstrings_nget, nget_atomic_command_scan_returned_zero_keys)
           .withParameter("len", (long)REDISMODULE_POSTPONED_ARRAY_LEN);
     mock().expectOneCall("RedisModule_Call")
           .withParameter("cmdname", "SCAN");
-    returnNKeysFromScan(0);
+    returnNKeysFromScanSome(0);
     expectNReplies(0);
     mock().expectNoCall("RedisModule_Call");
 
@@ -214,7 +197,7 @@ TEST(exstrings_nget, nget_atomic_command_3_keys_scanned_0_keys_mget)
 
     mock().expectOneCall("RedisModule_Call")
           .withParameter("cmdname", "SCAN");
-    returnNKeysFromScan(3);
+    returnNKeysFromScanSome(3);
     mock().expectOneCall("RedisModule_FreeCallReply");
     mock().expectOneCall("RedisModule_Call")
           .withParameter("cmdname", "MGET");
@@ -238,7 +221,7 @@ TEST(exstrings_nget, nget_atomic_command_3_keys_scanned_3_keys_mget)
           .withParameter("len", (long)REDISMODULE_POSTPONED_ARRAY_LEN);
     mock().expectOneCall("RedisModule_Call")
           .withParameter("cmdname", "SCAN");
-    returnNKeysFromScan(3);
+    returnNKeysFromScanSome(3);
     mock().expectOneCall("RedisModule_FreeCallReply");
     mock().expectOneCall("RedisModule_Call")
           .withParameter("cmdname", "MGET");
@@ -262,7 +245,7 @@ TEST(exstrings_nget, nget_atomic_command_3_keys_scanned_2_keys_mget)
           .withParameter("len", (long)REDISMODULE_POSTPONED_ARRAY_LEN);
     mock().expectOneCall("RedisModule_Call")
           .withParameter("cmdname", "SCAN");
-    returnNKeysFromScan(3);
+    returnNKeysFromScanSome(3);
     mock().expectOneCall("RedisModule_FreeCallReply");
     mock().expectOneCall("RedisModule_Call")
           .withParameter("cmdname", "MGET");
@@ -418,7 +401,7 @@ TEST(exstrings_nget, nget_noatomic_threadmain_3_keys_scanned_3_keys_mget)
           .withParameter("len", (long)REDISMODULE_POSTPONED_ARRAY_LEN);
     mock().expectOneCall("RedisModule_Call")
           .withParameter("cmdname", "SCAN");
-    returnNKeysFromScan(3);
+    returnNKeysFromScanSome(3);
     mock().expectOneCall("RedisModule_FreeCallReply");
     mock().expectOneCall("RedisModule_Call")
           .withParameter("cmdname", "MGET");
@@ -452,7 +435,7 @@ TEST(exstrings_nget, nget_noatomic_threadmain_3_keys_scanned_0_keys_mget)
           .withParameter("len", (long)REDISMODULE_POSTPONED_ARRAY_LEN);
     mock().expectOneCall("RedisModule_Call")
           .withParameter("cmdname", "SCAN");
-    returnNKeysFromScan(3);
+    returnNKeysFromScanSome(3);
     mock().expectOneCall("RedisModule_FreeCallReply");
     mock().expectOneCall("RedisModule_Call")
           .withParameter("cmdname", "MGET");
@@ -486,7 +469,7 @@ TEST(exstrings_nget, nget_noatomic_threadmain_3_keys_scanned_2_keys_mget)
           .withParameter("len", (long)REDISMODULE_POSTPONED_ARRAY_LEN);
     mock().expectOneCall("RedisModule_Call")
           .withParameter("cmdname", "SCAN");
-    returnNKeysFromScan(3);
+    returnNKeysFromScanSome(3);
     mock().expectOneCall("RedisModule_FreeCallReply");
     mock().expectOneCall("RedisModule_Call")
           .withParameter("cmdname", "MGET");
@@ -521,7 +504,7 @@ TEST(exstrings_nget, nget_noatomic_threadmain_scan_returned_zero_keys)
           .withParameter("len", (long)REDISMODULE_POSTPONED_ARRAY_LEN);
     mock().expectOneCall("RedisModule_Call")
           .withParameter("cmdname", "SCAN");
-    returnNKeysFromScan(0);
+    returnNKeysFromScanSome(0);
     mock().expectOneCall("RedisModule_FreeCallReply");
     mock().expectNoCall("RedisModule_Call");
     mock().expectOneCall("RedisModule_FreeThreadSafeContext");

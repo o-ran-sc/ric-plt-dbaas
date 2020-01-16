@@ -547,99 +547,46 @@ int NDel_Atomic_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int 
     RedisModule_AutoMemory(ctx);
     int ret = REDISMODULE_OK;
     long long replylen = 0;
-    long long cursor = 0;  // number = 0;
-    //size_t  str_len;
-    RedisModuleString *scanargv[SCANARGC] = {NULL};
-    RedisModuleString *key = NULL, *count = NULL;
     RedisModuleCallReply *reply = NULL;
+    ExstringsStatus status;
+    ScanSomeState scan_state;
+    ScannedKeys *scanned_keys = NULL;
 
     InitStaticVariable();
     if (argc != 2)
         return RedisModule_WrongArity(ctx);
 
-    key = argv[1];
-    count = def_count_str;
-
-    scanargv[0] = zero_str;
-    scanargv[1] = match_str;
-    scanargv[2] = key;
-    scanargv[3] = count_str;
-    scanargv[4] = count;
+    scan_state.key = argv[1];
+    scan_state.count = def_count_str;
+    scan_state.cursor = 0;
 
     do {
-        reply = RedisModule_Call(ctx, "SCAN", "v", scanargv, SCANARGC);
-        if (reply == NULL) {
-            RedisModule_ReplyWithError(ctx,"ERR reply is NULL");
+        scanned_keys = scanSome(ctx, &scan_state, &status);
+
+        if (status != EXSTRINGS_STATUS_NO_ERRORS) {
             ret = REDISMODULE_ERR;
             break;
-        } else if (RedisModule_CallReplyType(reply) == REDISMODULE_REPLY_ERROR) {
-            RedisModule_ReplyWithCallReply(ctx,reply);
-            RedisModule_FreeCallReply(reply);
-            ret = REDISMODULE_ERR;
-            break;
-        }
-
-        RedisModuleCallReply *cr_cursor =
-            RedisModule_CallReplyArrayElement(reply,0);
-        RedisModuleCallReply *cr_keys =
-            RedisModule_CallReplyArrayElement(reply,1);
-
-        if (scanargv[0] != zero_str)
-            RedisModule_FreeString(ctx,scanargv[0]);
-
-        scanargv[0] = RedisModule_CreateStringFromCallReply(cr_cursor);
-        RedisModule_StringToLongLong(scanargv[0],&cursor);
-
-        size_t items = RedisModule_CallReplyLength(cr_keys);
-        RedisModule_FreeCallReply(reply);
-
-        if (items == 0) {
+        } else if (scanned_keys == NULL) {
             continue;
         }
 
-        RedisModuleString *cmdargv[items];
-        size_t i=0, j;
-        for (j = 0; j < items; j++) {
-           RedisModuleString *rms = RedisModule_CreateStringFromCallReply(RedisModule_CallReplyArrayElement(cr_keys,j));
-           if (rms)
-               cmdargv[i++] = rms;
-        }
+        reply = RedisModule_Call(ctx, "UNLINK", "v!", scanned_keys->keys, scanned_keys->len);
 
-        reply = RedisModule_Call(ctx, "UNLINK", "v!", cmdargv, i);
-        if (reply == NULL) {
-            RedisModule_ReplyWithError(ctx,"ERR reply is NULL");
-            for (j = 0; j < items; j++) {
-                RedisModule_FreeString(ctx, cmdargv[j]);
-            }
-
-            ret = REDISMODULE_ERR;
-            break;
-        } else if (RedisModule_CallReplyType(reply) == REDISMODULE_REPLY_ERROR){
-            RedisModule_ReplyWithCallReply(ctx,reply);
-            RedisModule_FreeCallReply(reply);
-            for (j = 0; j < items; j++) {
-                RedisModule_FreeString(ctx, cmdargv[j]);
-            }
+        forwardIfError(ctx, reply, &status);
+        if (status != EXSTRINGS_STATUS_NO_ERRORS) {
+            freeScannedKeys(ctx, scanned_keys);
             ret = REDISMODULE_ERR;
             break;
         }
-        else if (RedisModule_CallReplyType(reply) == REDISMODULE_REPLY_INTEGER) {
-            long long replyVal = RedisModule_CallReplyInteger(reply);
-            replylen = replylen + replyVal;
-            RedisModule_FreeCallReply(reply);
-        }
 
-        for (j = 0; j < items; j++) {
-            RedisModule_FreeString(ctx, cmdargv[j]);
-        }
-    } while (cursor != 0);
+        replylen += RedisModule_CallReplyInteger(reply);
+        RedisModule_FreeCallReply(reply);
+        freeScannedKeys(ctx, scanned_keys);
+    } while (scan_state.cursor != 0);
 
     if (ret == REDISMODULE_OK) {
         RedisModule_ReplyWithLongLong(ctx, replylen);
     }
-
-    if (scanargv[0] && scanargv[0] != zero_str)
-        RedisModule_FreeString(ctx, scanargv[0]);
 
     return ret;
 }
