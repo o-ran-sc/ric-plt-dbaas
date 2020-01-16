@@ -49,5 +49,8 @@ int DelMPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc
 int DelIEPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int DelIEMPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int DelNEPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
+int NGet_Atomic_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
+int NGet_NoAtomic_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
+void *NGet_NoAtomic_ThreadMain(void *arg);
 
 #endif
