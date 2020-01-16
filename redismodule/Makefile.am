@@ -75,6 +75,7 @@ redismodule_ut2_SOURCES = \
 	tst/mock/include/redismodule.h  \
 	tst/mock/src/commonStub.cpp \
 	tst/mock/src/redismoduleNewStub.cpp \
+	tst/src/exstrings_ndel_test.cpp \
 	tst/src/exstrings_nget_test.cpp \
 	tst/src/main.cpp \
 	tst/src/ut_helpers.cpp

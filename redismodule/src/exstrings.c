@@ -831,6 +831,55 @@ int NGet_Atomic_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int 
     return Nget_RedisCommand(ctx, &nget_args, false);
 }
 
+int NDel_Atomic_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc)
+{
+    RedisModule_AutoMemory(ctx);
+    int ret = REDISMODULE_OK;
+    long long replylen = 0;
+    RedisModuleCallReply *reply = NULL;
+    ExstringsStatus status;
+    ScanSomeState scan_state;
+    ScannedKeys *scanned_keys = NULL;
+
+    InitStaticVariable();
+    if (argc != 2)
+        return RedisModule_WrongArity(ctx);
+
+    scan_state.key = argv[1];
+    scan_state.count = def_count_str;
+    scan_state.cursor = 0;
+
+    do {
+        scanned_keys = scanSome(ctx, &scan_state, &status);
+
+        if (status != EXSTRINGS_STATUS_NO_ERRORS) {
+            ret = REDISMODULE_ERR;
+            break;
+        } else if (scanned_keys == NULL) {
+            continue;
+        }
+
+        reply = RedisModule_Call(ctx, "UNLINK", "v!", scanned_keys->keys, scanned_keys->len);
+
+        forwardIfError(ctx, reply, &status);
+        if (status != EXSTRINGS_STATUS_NO_ERRORS) {
+            freeScannedKeys(ctx, scanned_keys);
+            ret = REDISMODULE_ERR;
+            break;
+        }
+
+        replylen += RedisModule_CallReplyInteger(reply);
+        RedisModule_FreeCallReply(reply);
+        freeScannedKeys(ctx, scanned_keys);
+    } while (scan_state.cursor != 0);
+
+    if (ret == REDISMODULE_OK) {
+        RedisModule_ReplyWithLongLong(ctx, replylen);
+    }
+
+    return ret;
+}
+
 /* This function must be present on each Redis module. It is used in order to
  * register the commands into the Redis server. */
 int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) {
@@ -862,6 +911,10 @@ int RedisModule_OnLoad(RedisModuleCtx *ctx, RedisModuleString **argv, int argc) 
 
     if (RedisModule_CreateCommand(ctx,"nget.noatomic",
         NGet_NoAtomic_RedisCommand,"readonly",1,1,1) == REDISMODULE_ERR)
+        return REDISMODULE_ERR;
+
+    if (RedisModule_CreateCommand(ctx,"ndel.atomic",
+        NDel_Atomic_RedisCommand,"write deny-oom",1,1,1) == REDISMODULE_ERR)
         return REDISMODULE_ERR;
 
     if (RedisModule_CreateCommand(ctx,"msetpub",
