@@ -24,6 +24,8 @@ extern "C" {
 #include "redismodule.h"
 }
 
+#include <string.h>
+
 #include "CppUTest/TestHarness.h"
 #include "CppUTestExt/MockSupport.h"
 
