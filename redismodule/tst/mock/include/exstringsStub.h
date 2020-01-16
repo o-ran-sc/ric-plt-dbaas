@@ -24,10 +24,6 @@
 
 
 #include "redismodule.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
 
 int setStringGenericCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc, const int flag);
 int SetIE_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
@@ -49,6 +45,7 @@ int DelMPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc
 int DelIEPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int DelIEMPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int DelNEPub_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
+int NDel_Atomic_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int NGet_Atomic_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 int NGet_NoAtomic_RedisCommand(RedisModuleCtx *ctx, RedisModuleString **argv, int argc);
 void *NGet_NoAtomic_ThreadMain(void *arg);
