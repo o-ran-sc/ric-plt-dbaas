@@ -146,9 +146,10 @@ RedisModuleCallReply *RedisModule_CallReplyArrayElement(RedisModuleCallReply *re
 int RedisModule_ReplyWithLongLong(RedisModuleCtx *ctx, long long ll)
 {
     (void)ctx;
-    (void)ll;
-    return (int)mock().actualCall("RedisModule_ReplyWithLongLong")
-                      .returnIntValueOrDefault(REDISMODULE_OK);
+    return (int)mock()
+        .actualCall("RedisModule_ReplyWithLongLong")
+        .withParameter("ll", (int)ll)
+        .returnIntValueOrDefault(REDISMODULE_OK);
 }
 
 long long RedisModule_CallReplyInteger(RedisModuleCallReply *reply)
@@ -156,7 +157,7 @@ long long RedisModule_CallReplyInteger(RedisModuleCallReply *reply)
     (void)reply;
     return (long long)mock()
         .actualCall("RedisModule_CallReplyInteger")
-        .returnIntValueOrDefault(REDISMODULE_OK);
+        .returnIntValue();
 }
 
 int RedisModule_CallReplyType(RedisModuleCallReply *reply)
