@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "5c56063a_8dd79140",
+        "filename": "redismodule/tst/mock/include/commonStub.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2020-01-21T11:29:49Z",
+      "side": 1,
+      "message": "OK, thanks.",
+      "parentUuid": "d51513c7_8f71e0e9",
+      "revId": "384cdb677d67db036ef62783ec2aae9b8fcc979c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "06a9c32b_75f72d05",
         "filename": "redismodule/tst/mock/src/commonStub.cpp",
         "patchSetId": 1
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "06a9c32b_75f72d05",
+      "revId": "384cdb677d67db036ef62783ec2aae9b8fcc979c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50bcd3f5_05d9d374",
+        "filename": "redismodule/tst/mock/src/commonStub.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2020-01-21T11:29:49Z",
+      "side": 1,
+      "message": "OK, thanks.",
+      "parentUuid": "5c8b421e_4b6485b6",
       "revId": "384cdb677d67db036ef62783ec2aae9b8fcc979c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
@@ -107,6 +143,24 @@
     },
     {
       "key": {
+        "uuid": "358373ad_04c9b40a",
+        "filename": "redismodule/tst/mock/src/commonStub.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2020-01-21T11:29:49Z",
+      "side": 1,
+      "message": "OK, thanks.",
+      "parentUuid": "97f8b50a_95ddb110",
+      "revId": "384cdb677d67db036ef62783ec2aae9b8fcc979c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bd0cef8a_a80af9f8",
         "filename": "redismodule/tst/mock/src/redismoduleStub.cpp",
         "patchSetId": 1
@@ -136,6 +190,24 @@
       "side": 1,
       "message": "Corrected.",
       "parentUuid": "bd0cef8a_a80af9f8",
+      "revId": "384cdb677d67db036ef62783ec2aae9b8fcc979c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ee00bc2b_b5661872",
+        "filename": "redismodule/tst/mock/src/redismoduleStub.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2020-01-21T11:29:49Z",
+      "side": 1,
+      "message": "OK, thanks.",
+      "parentUuid": "8ac0c477_9f937940",
       "revId": "384cdb677d67db036ef62783ec2aae9b8fcc979c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
