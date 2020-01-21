@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6a173a35_556480b5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000078
+      },
+      "writtenOn": "2020-01-21T10:39:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5adf58dd_65941d3e",
+      "revId": "468be989c36db48063222479d3b025bdd935196d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b976909f_db39253c",
         "filename": "redismodule/Makefile.am",
         "patchSetId": 1
