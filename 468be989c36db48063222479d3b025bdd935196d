@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "5a2c8b57_275bd65a",
+        "filename": "redismodule/Makefile.am",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000078
+      },
+      "writtenOn": "2020-01-21T10:33:42Z",
+      "side": 1,
+      "message": "Functions in UT are mocked by creating a mock implementation\nof each mocked function and providing it to the linker instead\nof the real implementation.\n\nThe old UT:s do not actually use the mocking\nfunctionality of cpputest (except in one or two cases)\nand instead uses completely custom mocks.\n\nI wanted to use the cpputests built-in mock functionality\nin rewritten unit tests and needed to write new mocks.\n\nSince only one implementation of each function can be provided\nto the linker I needed to create a separate program to use the new mocks.",
+      "parentUuid": "b976909f_db39253c",
+      "revId": "468be989c36db48063222479d3b025bdd935196d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b115e5ef_cd6080f9",
         "filename": "redismodule/src/exstrings.c",
         "patchSetId": 1
@@ -47,6 +65,24 @@
       "writtenOn": "2020-01-17T07:08:46Z",
       "side": 1,
       "message": "Can allocation ever fail?",
+      "revId": "468be989c36db48063222479d3b025bdd935196d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d28e7421_45957100",
+        "filename": "redismodule/src/exstrings.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1000078
+      },
+      "writtenOn": "2020-01-21T10:33:42Z",
+      "side": 1,
+      "message": "The allocation can fail and return NULL since it uses zmalloc\nbehind the scenes which is not guaranteed to succeed.\n\nThere are also other functions such as \u0027RedisModule_CreateStringFromCallReply\u0027\nthat may fail alloc but are not checked.\n\nI should probably review them and add proper handling for them.",
+      "parentUuid": "b115e5ef_cd6080f9",
       "revId": "468be989c36db48063222479d3b025bdd935196d",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "781302a8_0265434a",
+        "filename": "redismodule/src/exstrings.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1000078
+      },
+      "writtenOn": "2020-01-21T10:33:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bec6b6f6_a34c7454",
+      "revId": "468be989c36db48063222479d3b025bdd935196d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6ba36f4_af71c296",
         "filename": "redismodule/src/exstrings.c",
         "patchSetId": 1
@@ -87,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "f361d583_23528d55",
+        "filename": "redismodule/src/exstrings.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 1000078
+      },
+      "writtenOn": "2020-01-21T10:33:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d6ba36f4_af71c296",
+      "revId": "468be989c36db48063222479d3b025bdd935196d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c7163f25_585d2e70",
         "filename": "redismodule/src/exstrings.c",
         "patchSetId": 1
@@ -98,6 +170,24 @@
       "writtenOn": "2020-01-17T07:08:46Z",
       "side": 1,
       "message": "Can allocation ever fail?",
+      "revId": "468be989c36db48063222479d3b025bdd935196d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eaaaa4a8_84ff2d86",
+        "filename": "redismodule/src/exstrings.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 1000078
+      },
+      "writtenOn": "2020-01-21T10:33:42Z",
+      "side": 1,
+      "message": "See above.",
+      "parentUuid": "c7163f25_585d2e70",
       "revId": "468be989c36db48063222479d3b025bdd935196d",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
@@ -121,6 +211,24 @@
     },
     {
       "key": {
+        "uuid": "7b303790_4e1e21c1",
+        "filename": "redismodule/tst/src/exstrings_nget_test.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1000078
+      },
+      "writtenOn": "2020-01-21T10:33:42Z",
+      "side": 1,
+      "message": "My reasoning behind this was that pre-existing function names are \u0027camelCase\u0027\n(although the only pre-existing functions were in the actual implementation code not in UT)\nand pre-existing test case names are \u0027snake_case\u0027.",
+      "parentUuid": "80877526_af7d58e8",
+      "revId": "468be989c36db48063222479d3b025bdd935196d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e20176b6_bf038ec7",
         "filename": "redismodule/tst/src/ut_helpers.cpp",
         "patchSetId": 1
@@ -132,6 +240,24 @@
       "writtenOn": "2020-01-17T07:08:46Z",
       "side": 1,
       "message": "* What for 1 is here, is it just some fake value for ut purpose? If yes, could you use some \"#define DUMMY_XYZ 1\" for it to make it more clear.\n* Also at line 44 there is malloc(1) to allocate one byte, why 1 byte?\n* For loops here do not need { .. }",
+      "revId": "468be989c36db48063222479d3b025bdd935196d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "321c0cc2_6315f1e8",
+        "filename": "redismodule/tst/src/ut_helpers.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000078
+      },
+      "writtenOn": "2020-01-21T10:33:42Z",
+      "side": 1,
+      "message": "The strings returned from \u0027RedisModule_CreateStringFromCallReply\u0027\nare expected to be freed by the redismodule implementation before exiting.\n\n\u0027malloc(1)\u0027 is used to allocate a dummy buffer which can be monitored with\nmemory leak detectors such as valgrind.\n\nI shall rename the \u00271\u0027 to something that better explains the purpose of this allocation.",
+      "parentUuid": "e20176b6_bf038ec7",
       "revId": "468be989c36db48063222479d3b025bdd935196d",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
