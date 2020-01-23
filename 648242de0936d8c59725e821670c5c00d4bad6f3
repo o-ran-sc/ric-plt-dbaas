@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7679e01_6cad8f86",
+        "filename": "redismodule/src/exstrings.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 797,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2020-01-23T10:34:23Z",
+      "side": 1,
+      "message": "Is this correct to return success (REDISMODULE_OK)? If yes maybe comment line would be nice to have to explain reasoning.",
+      "revId": "648242de0936d8c59725e821670c5c00d4bad6f3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
