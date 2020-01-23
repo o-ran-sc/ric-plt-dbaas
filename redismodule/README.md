@@ -5,8 +5,8 @@ as a [Redis modules](https://redis.io/topics/modules-intro).
 
 # Compiling and UT (Unit Tests)
 
-To compile and install run standard automake commands
-in the redismodule directory:
+To compile and install with unit tests enabled
+run standard automake commands in the redismodule directory:
 ```
 ./autogen.sh
 ./configure
@@ -19,9 +19,13 @@ need to be installed as additional dependencies.
 To enable and run unit tests use the commands:
 ```
 ./autogen.sh
-./configure --enable-unit-test
+./configure
 make test
 ```
+
+The unit tests and valgrind memory checking can be disabled with
+the configure-options: `--disable-unit-test` and `--disable-unit-test-memcheck`
+respectively.
 
 # Commands
 

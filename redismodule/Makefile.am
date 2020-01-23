@@ -109,15 +109,26 @@ redismodule_ut2_LDFLAGS = -Wl,-rpath=${libdir} ${UT_COVERAGE_LDFLAGS}
 redismodule_ut2_LDADD = -L${libdir} $(LIBCPPUTEST_LIBS) -lgcov
 
 
-test: redismodule_ut redismodule_ut2
-	./run-tests.sh
+if UNIT_TEST_MEMCHECK_ENABLED
+test: ut_memcheck_test
+else
+test: ut_test
+endif
+
+ut_test: redismodule_ut redismodule_ut2
+	./redismodule_ut
+	./redismodule_ut2
+
+ut_memcheck_test: redismodule_ut redismodule_ut2
+	valgrind --error-exitcode=1 --leak-check=full ./redismodule_ut
+	valgrind --error-exitcode=1 --leak-check=full ./redismodule_ut2
 
 TESTS = run-tests.sh
 
 else
 
 test:
-	echo 'enable ut with configure flag: --enable-unit-test'
+	echo 'enable ut with configure flag: --enable-unit-test and valgrind memcheck with: --enable-unit-test-memcheck'
 	exit 1
 
 endif #UNIT_TEST_ENABLED

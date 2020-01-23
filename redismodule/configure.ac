@@ -2,7 +2,6 @@ AC_INIT([redismodule], [0.0.0], [], [], [https://gerrit.oran-osc.org/r/#/admin/p
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([run-tests.sh], [chmod +x run-tests.sh])
 
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects tar-pax])
@@ -17,14 +16,33 @@ AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
 AC_ARG_ENABLE([unit-test],
-[  --enable-unit-test    Check for UT dependencies],
-[  PKG_CHECK_MODULES([LIBCPPUTEST],[cpputest])
-   AC_CHECK_PROG(VALGRIND_CHECK, valgrind, yes)
-   AS_IF([test x"$VALGRIND_CHECK" != x"yes"], [AC_MSG_ERROR([Install valgrind to run UT.])])
-   UNIT_TEST_ENABLED=true
-],
-[  UNIT_TEST_ENABLED=false  ])
-AM_CONDITIONAL([UNIT_TEST_ENABLED], [$UNIT_TEST_ENABLED])
+  [--disable-unit-test], [Enable UT]
+)
+
+AS_IF([test x"$enable_unit_test" != x"no"],
+  [
+    PKG_CHECK_MODULES([LIBCPPUTEST],[cpputest])
+    AM_CONDITIONAL([UNIT_TEST_ENABLED], [true])
+  ],
+  [
+    AM_CONDITIONAL([UNIT_TEST_ENABLED], [false])
+  ]
+)
+
+AC_ARG_ENABLE([unit-test-memcheck],
+  [AS_HELP_STRING([--disable-unit-test-memcheck], [Run valgrind with UT])]
+)
+
+AS_IF([test x"$enable_unit_test_memcheck" != x"no"],
+  [
+    AC_CHECK_PROG(VALGRIND_CHECK, valgrind, yes)
+    AM_CONDITIONAL([UNIT_TEST_MEMCHECK_ENABLED], [true])
+  ],
+  [
+    AM_CONDITIONAL([UNIT_TEST_MEMCHECK_ENABLED], [false])
+  ]
+)
+
 
 # Checks for header files.
 
