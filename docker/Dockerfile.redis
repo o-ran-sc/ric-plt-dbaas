@@ -18,13 +18,54 @@
 #   platform project (RICP).
 #
 
-FROM nexus3.o-ran-sc.org:10004/bldr-alpine3:6-a3.9-nng as build-env
+
+# Alpine-linux based containers use musl implementation of libc which causes
+# valgrind to emit false positives. Therefore we run UT with valgrind in
+# a separate build stage that uses ubuntu container with GNU libc installed.
+#
+# NOTE: The valgrind false positive problem could also potentially be solved
+# with valgrind suppression files but that kind of approach may be fragile.
+FROM ubuntu:19.10 as cpputest-build
+
+RUN apt update && \
+    apt install -y \
+    automake \
+    autoconf \
+    cmake \
+    curl \
+    g++ \
+    gcc \
+    libtool \
+    make \
+    pkg-config \
+    valgrind
+
+# Cpputest built-in memory checks generate false positives in valgrind.
+# This is solved by compiling cpputest with memory checking disabled.
+WORKDIR /cpputest
+RUN curl -L https://github.com/cpputest/cpputest/releases/download/v3.8/cpputest-3.8.tar.gz | \
+    tar --strip-components=1 -xzf -
+WORKDIR /cpputest/builddir
+RUN cmake -DMEMORY_LEAK_DETECTION=OFF .. && \
+    make install
 
 COPY ./redismodule /redismodule
 WORKDIR /redismodule
 RUN ./autogen.sh && \
     ./configure && \
-    make install -j
+    make test
+
+
+FROM nexus3.o-ran-sc.org:10004/bldr-alpine3:6-a3.9-nng as build-env
+
+RUN apk add cpputest
+COPY ./redismodule /redismodule
+WORKDIR /redismodule
+RUN ./autogen.sh && \
+    ./configure --disable-unit-test-memcheck && \
+    make test && \
+    make install
+
 
 FROM redis:5.0.5-alpine3.9
 

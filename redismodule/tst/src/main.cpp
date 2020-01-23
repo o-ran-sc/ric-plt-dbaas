@@ -27,5 +27,6 @@ extern "C" {
 
 int main(int ac, char** av)
 {
-   return CommandLineTestRunner::RunAllTests(ac, av);
+    MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
+    return CommandLineTestRunner::RunAllTests(ac, av);
 }
