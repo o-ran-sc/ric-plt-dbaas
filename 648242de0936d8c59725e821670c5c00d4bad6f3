@@ -34,6 +34,24 @@
       "revId": "648242de0936d8c59725e821670c5c00d4bad6f3",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82a0c917_b580f4ac",
+        "filename": "redismodule/src/exstrings.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 797,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2020-01-23T12:00:12Z",
+      "side": 1,
+      "message": "OK. Thanks, resolving this issue for now because REDISMODULE_ERR is not returned (pathset 6).",
+      "parentUuid": "91088ba2_45b6d065",
+      "revId": "648242de0936d8c59725e821670c5c00d4bad6f3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
