@@ -16,6 +16,24 @@
       "revId": "648242de0936d8c59725e821670c5c00d4bad6f3",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91088ba2_45b6d065",
+        "filename": "redismodule/src/exstrings.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 797,
+      "author": {
+        "id": 1000078
+      },
+      "writtenOn": "2020-01-23T11:51:29Z",
+      "side": 1,
+      "message": "Returning REDISMODULE_ERR vs returning REDISMODULE_OK should only matter\nif someone writes a redismodule function that calls this function directly.\n\nWhen this function is called by redis as far as I know the return value\nshould have no effect at all.\n\nI don\u0027t see any reason not to return REDISMODULE_ERR in various error scenarios\nin case someone calls this function and is interested in its status.\n\nHowever now that I look at the return values in the original code\nthis function was written so that it always returned REDISMODULE_OK.\n\nI try asking the original authors for clarification.\n\nIf there is indeed a reason to always return REDISMODULE_OK\nthen the return value of the other error case will need to be fixed as well\nto return REDISMODULE_OK.\n\nOtherwise I think we should change this function and also \nthe \u0027pthread\u0027 error case to return REDISMODULE_ERR.",
+      "parentUuid": "a7679e01_6cad8f86",
+      "revId": "648242de0936d8c59725e821670c5c00d4bad6f3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
