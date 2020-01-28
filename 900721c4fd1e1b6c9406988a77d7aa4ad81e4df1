@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da56bcaf_5fd8caac",
+        "filename": "redismodule/configure.ac",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000078
+      },
+      "writtenOn": "2020-01-28T14:22:38Z",
+      "side": 1,
+      "message": "This should be \u0027Disable UT\u0027",
+      "range": {
+        "startLine": 19,
+        "startChar": 26,
+        "endLine": 19,
+        "endChar": 32
+      },
+      "revId": "900721c4fd1e1b6c9406988a77d7aa4ad81e4df1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1aa8bea3_6f81f0d6",
+        "filename": "redismodule/configure.ac",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000078
+      },
+      "writtenOn": "2020-01-28T14:22:38Z",
+      "side": 1,
+      "message": "Also needs to be updated.",
+      "range": {
+        "startLine": 33,
+        "startChar": 51,
+        "endLine": 33,
+        "endChar": 71
+      },
+      "revId": "900721c4fd1e1b6c9406988a77d7aa4ad81e4df1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
