@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e967afc1_c07407af",
+        "filename": "docker/Dockerfile.redis",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000078
+      },
+      "writtenOn": "2020-01-30T08:24:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b36a64c_d42b7781",
+      "revId": "96407da763b2fdbbedf33417d6d992a521ca2eaf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f599e93_76d984a4",
         "filename": "redismodule/README.md",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "90b0a65a_8390c53f",
+        "filename": "redismodule/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000078
+      },
+      "writtenOn": "2020-01-30T08:24:39Z",
+      "side": 1,
+      "message": "Reworded instructions. See changes.",
+      "parentUuid": "5f599e93_76d984a4",
+      "revId": "96407da763b2fdbbedf33417d6d992a521ca2eaf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0616dc4b_bf9968a4",
         "filename": "redismodule/README.md",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2020-01-30T06:35:38Z",
       "side": 1,
       "message": "Maybe a reader is a bit confused because *configure* options here are the same as at line 12. Maybe some additional explanation would be nice...",
+      "revId": "96407da763b2fdbbedf33417d6d992a521ca2eaf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7d5587e_527f60ed",
+        "filename": "redismodule/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1000078
+      },
+      "writtenOn": "2020-01-30T08:24:39Z",
+      "side": 1,
+      "message": "Reworded instructions. See changes.",
+      "parentUuid": "0616dc4b_bf9968a4",
       "revId": "96407da763b2fdbbedf33417d6d992a521ca2eaf",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
