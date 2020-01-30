@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b36a64c_d42b7781",
+        "filename": "docker/Dockerfile.redis",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2020-01-30T06:35:38Z",
+      "side": 1,
+      "message": "Minor issue but maybe below text could utilize line length of 79 characters per line.",
+      "revId": "96407da763b2fdbbedf33417d6d992a521ca2eaf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f599e93_76d984a4",
+        "filename": "redismodule/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2020-01-30T06:35:38Z",
+      "side": 1,
+      "message": "Will *make* run unit test without specifically instructed to do so: *make test*?",
+      "revId": "96407da763b2fdbbedf33417d6d992a521ca2eaf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0616dc4b_bf9968a4",
+        "filename": "redismodule/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2020-01-30T06:35:38Z",
+      "side": 1,
+      "message": "Maybe a reader is a bit confused because *configure* options here are the same as at line 12. Maybe some additional explanation would be nice...",
+      "revId": "96407da763b2fdbbedf33417d6d992a521ca2eaf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
