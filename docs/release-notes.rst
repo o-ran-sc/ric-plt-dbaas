@@ -31,6 +31,10 @@ ric-plt/dbaas.
 Version history
 ---------------
 
+[0.2.3] - 2020-02-12
+
+* Upgrade base image to alpine3-go:1-rmr1.13.1 in Redis docker build
+
 [0.2.2] - 2019-11-12
 
 * Take Alpine (version 6-a3.9) linux base image into use in Redis docker image.
