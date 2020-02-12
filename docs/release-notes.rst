@@ -31,6 +31,10 @@ ric-plt/dbaas.
 Version history
 ---------------
 
+[0.3.1] - 2020-02-13
+
+* Upgrade base image to alpine3-go:1-rmr1.13.1 in Redis docker build
+
 [0.3.0] - 2020-01-23
 
 * Enable unit tests and valgrind in CI.
