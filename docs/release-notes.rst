@@ -31,6 +31,13 @@ ric-plt/dbaas.
 Version history
 ---------------
 
+[0.3.0] - 2020-01-23
+
+* Enable unit tests and valgrind in CI.
+* Update redismodule with new commands.
+* Add mandatory documentation files.
+* Update docker base image to Alpine 6-a3.9.
+
 [0.2.2] - 2019-11-12
 
 * Take Alpine (version 6-a3.9) linux base image into use in Redis docker image.
