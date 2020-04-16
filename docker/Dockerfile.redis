@@ -56,7 +56,7 @@ RUN ./autogen.sh && \
     make test
 
 
-FROM nexus3.o-ran-sc.org:10004/bldr-alpine3-go:1-rmr1.13.1 as build-env
+FROM nexus3.o-ran-sc.org:10004/bldr-alpine3-go:2-rmr1.13.1 as build-env
 
 RUN apk add cpputest
 COPY ./redismodule /redismodule

@@ -774,6 +774,8 @@ int Nget_RedisCommand(RedisModuleCtx *ctx, NgetArgs* nget_args, bool using_threa
  */
 void *NGet_NoAtomic_ThreadMain(void *arg)
 {
+    pthread_detach(pthread_self());
+
     RedisModuleBlockedClientArgs *bca = arg;
     RedisModuleBlockedClient *bc = bca->bc;
     RedisModuleCtx *ctx = RedisModule_GetThreadSafeContext(bc);

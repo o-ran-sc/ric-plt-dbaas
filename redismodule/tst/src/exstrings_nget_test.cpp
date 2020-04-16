@@ -47,6 +47,12 @@ TEST_GROUP(exstrings_nget)
 
 };
 
+void threadDetachedSuccess()
+{
+    mock().expectOneCall("pthread_detach")
+        .andReturnValue(0);
+}
+
 void nKeysFoundMget(long keys)
 {
     for (long i = 0 ; i < keys ; i++) {
@@ -399,6 +405,7 @@ TEST(exstrings_nget, nget_noatomic_threadmain_3_keys_scanned_3_keys_mget)
     bca->argc = 2;
 
     mock().ignoreOtherCalls();
+    threadDetachedSuccess();
     mock().expectOneCall("RedisModule_ReplyWithArray")
           .withParameter("len", (long)REDISMODULE_POSTPONED_ARRAY_LEN);
     mock().expectOneCall("RedisModule_Call")
@@ -433,6 +440,7 @@ TEST(exstrings_nget, nget_noatomic_threadmain_3_keys_scanned_0_keys_mget)
     bca->argc = 2;
 
     mock().ignoreOtherCalls();
+    threadDetachedSuccess();
     mock().expectOneCall("RedisModule_ReplyWithArray")
           .withParameter("len", (long)REDISMODULE_POSTPONED_ARRAY_LEN);
     mock().expectOneCall("RedisModule_Call")
@@ -467,6 +475,7 @@ TEST(exstrings_nget, nget_noatomic_threadmain_3_keys_scanned_2_keys_mget)
     bca->argc = 2;
 
     mock().ignoreOtherCalls();
+    threadDetachedSuccess();
     mock().expectOneCall("RedisModule_ReplyWithArray")
           .withParameter("len", (long)REDISMODULE_POSTPONED_ARRAY_LEN);
     mock().expectOneCall("RedisModule_Call")
@@ -502,6 +511,7 @@ TEST(exstrings_nget, nget_noatomic_threadmain_scan_returned_zero_keys)
     bca->argc = 2;
 
     mock().ignoreOtherCalls();
+    threadDetachedSuccess();
     mock().expectOneCall("RedisModule_ReplyWithArray")
           .withParameter("len", (long)REDISMODULE_POSTPONED_ARRAY_LEN);
     mock().expectOneCall("RedisModule_Call")
@@ -516,6 +526,27 @@ TEST(exstrings_nget, nget_noatomic_threadmain_scan_returned_zero_keys)
 
     mock().checkExpectations();
     threadSafeContextLockedAndUnlockedEqualTimes();
+
+    delete []redisStrVec;
+}
+
+TEST(exstrings_nget, nget_noatomic_threadmain_thread_detached)
+{
+    RedisModuleCtx ctx;
+    RedisModuleBlockedClientArgs *bca = (RedisModuleBlockedClientArgs*)malloc(sizeof(RedisModuleBlockedClientArgs));
+    RedisModuleBlockedClient *bc = RedisModule_BlockClient(&ctx,NULL,NULL,NULL,0);
+    RedisModuleString ** redisStrVec = createRedisStrVec(2);
+
+    bca->bc = bc;
+    bca->argv = redisStrVec;
+    bca->argc = 2;
+
+    mock().ignoreOtherCalls();
+    threadDetachedSuccess();
+
+    NGet_NoAtomic_ThreadMain((void*)bca);
+
+    mock().checkExpectations();
 
     delete []redisStrVec;
 }
