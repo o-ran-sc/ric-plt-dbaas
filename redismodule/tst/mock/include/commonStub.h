@@ -25,8 +25,13 @@
 
 #include <pthread.h>
 
+#define UT_DUMMY_THREAD_ID 1234
+
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
                    void *(*start_routine) (void *), void *arg);
 
+int pthread_detach(pthread_t thread);
+
+pthread_t pthread_self(void);
 
 #endif

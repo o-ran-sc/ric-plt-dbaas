@@ -58,3 +58,19 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         .actualCall("pthread_create")
         .returnIntValueOrDefault(0);
 }
+
+int pthread_detach(pthread_t thread)
+{
+    (void)thread;
+
+    return mock()
+        .actualCall("pthread_detach")
+        .returnIntValueOrDefault(0);
+}
+
+pthread_t pthread_self(void)
+{
+    return mock()
+        .actualCall("pthread_self")
+        .returnIntValueOrDefault(UT_DUMMY_THREAD_ID);
+}
