@@ -1,0 +1,7 @@
+Code-Review+2: Arvo Heinonen <arvo.heinonen@nokia.com>
+Verified+1: ORAN Jobbuilder <releng+oran-jobbuilder@linuxfoundation.org>
+Submitted-by: Timo Tietavainen <timo.tietavainen@nokia.com>
+Submitted-at: Thu, 23 Apr 2020 12:42:45 +0000
+Reviewed-on: https://gerrit.o-ran-sc.org/r/c/ric-plt/dbaas/+/3425
+Project: ric-plt/dbaas
+Branch: refs/heads/master
