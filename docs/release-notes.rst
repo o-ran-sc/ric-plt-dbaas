@@ -34,6 +34,7 @@ Version history
 [0.3.2] - 2020-04-22
 
 * Upgrade base image to bldr-alpine3:10-a3.22-rmr3 in Redis docker build
+* Fix redismodule resource leak
 
 [0.3.1] - 2020-02-13
 
