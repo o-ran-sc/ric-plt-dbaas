@@ -19,8 +19,7 @@
 Release-Notes
 =============
 
-This document provides the release notes for O-RAN SC Amber release of
-ric-plt/dbaas.
+This document provides the release notes of the dbaas.
 
 .. contents::
    :depth: 3
