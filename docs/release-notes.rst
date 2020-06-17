@@ -30,6 +30,10 @@ This document provides the release notes of the dbaas.
 Version history
 ---------------
 
+[0.4.1] - 2020-06-17
+
+* Upgrade base image to bldr-alpine3:12-a3.11 in Redis docker build
+
 [0.4.0] - 2020-04-23
 
 * Bump version to 0.4.0 to follow RIC versioning rules (4 is meaning RIC release R4). No functional changes.
