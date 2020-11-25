@@ -38,7 +38,8 @@ RUN apt update && \
     libtool \
     make \
     pkg-config \
-    valgrind
+    valgrind \
+    lcov
 
 # Cpputest built-in memory checks generate false positives in valgrind.
 # This is solved by compiling cpputest with memory checking disabled.
@@ -67,7 +68,7 @@ RUN ./autogen.sh && \
     make install
 
 
-FROM redis:5.0.5-alpine3.9
+FROM redis:5.0.5-alpine3.9 as build
 
 RUN apk add curl
 COPY --from=build-env /usr/local/libexec/redismodule/libredismodule.so /usr/local/libexec/redismodule/libredismodule.so
