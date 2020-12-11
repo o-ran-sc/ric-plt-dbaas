@@ -25,6 +25,6 @@ backend:
   port: 6379
   targetPort: 6379
   image:
-    name: snapshot.docker.ranco-dev-tools.eastus.cloudapp.azure.com/redis-standalone
+    name: redis-standalone
     tag: latest
-    imagePullPolicy: IfNotPresent
+  imagePullPolicy: Never

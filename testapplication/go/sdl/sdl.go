@@ -21,6 +21,7 @@
 package sdl
 
 import (
+	"fmt"
 	"github.com/go-redis/redis"
 	"os"
 	"reflect"
@@ -53,8 +54,33 @@ func Create(nameSpace string) *SdlInstance {
 		nsPrefix:  "{" + nameSpace + "},",
 		client:    client,
 	}
+	s.CheckRedisModuleExtensionCommands()
 
 	return &s
+}
+
+func (s *SdlInstance) CheckRedisModuleExtensionCommands() {
+	var moduleError bool
+	commands, err := s.client.Command(s.client.Context()).Result()
+	if err == nil {
+		redisModuleCommands := []string{
+			"setie", "delie", "setiepub", "setnxpub",
+			"msetmpub", "delmpub",
+		}
+		for _, v := range redisModuleCommands {
+			_, ok := commands[v]
+			if !ok {
+				fmt.Println("ERROR: Missing command:", v)
+				moduleError = true
+			}
+		}
+	} else {
+		fmt.Println("ERROR:", err)
+	}
+	if moduleError {
+		fmt.Println("Please make sure that redis extension modules have been installed.")
+		fmt.Println("To install: redis-cli module load /usr/local/libexec/redismodule/libredismodule.so")
+	}
 }
 
 func (s *SdlInstance) setNamespaceToKeys(pairs ...interface{}) []interface{} {
@@ -93,7 +119,7 @@ func (s *SdlInstance) setNamespaceToKeys(pairs ...interface{}) []interface{} {
 
 func (s *SdlInstance) Set(pairs ...interface{}) error {
 	keyAndData := s.setNamespaceToKeys(pairs...)
-	err := s.client.MSet(keyAndData...).Err()
+	err := s.client.MSet(s.client.Context(), keyAndData...).Err()
 	return err
 }
 
@@ -102,7 +128,7 @@ func (s *SdlInstance) Get(keys []string) (map[string]interface{}, error) {
 	for _, v := range keys {
 		keysWithNs = append(keysWithNs, s.nsPrefix+v)
 	}
-	val, err := s.client.MGet(keysWithNs...).Result()
+	val, err := s.client.MGet(s.client.Context(), keysWithNs...).Result()
 	m := make(map[string]interface{})
 	if err != nil {
 		return m, err
@@ -136,4 +162,3 @@ func (s *SdlInstance) GetAll() []string {
 func (s *SdlInstance) RemoveAll() {
 	panic("RemoveAll not implemented\n")
 }
-

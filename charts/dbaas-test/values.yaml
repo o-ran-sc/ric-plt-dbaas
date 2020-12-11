@@ -23,6 +23,6 @@ testapp:
   replicas: 1
   name: "dbaas-test-app"
   image:
-    name: snapshot.docker.ranco-dev-tools.eastus.cloudapp.azure.com/dbaas-test
+    name: dbaas-test
     tag: latest
-    imagePullPolicy: IfNotPresent
+  imagePullPolicy: Never

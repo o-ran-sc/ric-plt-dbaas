@@ -30,6 +30,12 @@ This document provides the release notes of the dbaas.
 Version history
 ---------------
 
+[0.5.0] - 2020-12-11
+
+* Upgrade DBAAS container's base Redis image to redis:5.0.9-alpine3.11.
+* Upgrade Redis module's base builder image to bldr-alpine3-go:2.0.0.
+* Upgrade DBAAS unit test's base builder image to ubuntu:18.04.
+
 [0.4.1] - 2020-06-17
 
 * Upgrade base image to bldr-alpine3:12-a3.11 in Redis docker build
