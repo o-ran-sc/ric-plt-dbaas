@@ -25,4 +25,4 @@ testapp:
   image:
     name: snapshot.docker.ranco-dev-tools.eastus.cloudapp.azure.com/dbaas-test
     tag: latest
-    imagePullPolicy: IfNotPresent
+  imagePullPolicy: IfNotPresent

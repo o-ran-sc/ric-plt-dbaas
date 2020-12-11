@@ -27,4 +27,4 @@ backend:
   image:
     name: snapshot.docker.ranco-dev-tools.eastus.cloudapp.azure.com/redis-standalone
     tag: latest
-    imagePullPolicy: IfNotPresent
+  imagePullPolicy: IfNotPresent

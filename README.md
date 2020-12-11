@@ -5,8 +5,8 @@ This repository containes all the needed elements to deploy database as a servic
 ## Architecture
 
 Redis is the chosen database technology and the final product will deploy autonomous
-redis cluster. In R0 schedule, single, non-redundant, non-persistent redis server is
-deployed
+redis cluster. Supported deployment options are standalone Redis server and HA
+(Sentinel) Redis deployment. Either deployment option won't provide data persistency.
 
 ## Subsystem structure
 
@@ -32,13 +32,17 @@ docker build --file docker/Dockerfile.testapp --tag dbaas-test .
 
 ### DBaaS service
 
-In R0, dbaas service is realized with single container running redis database.
-The database is configured to be non-persistent and non-redundant. The container
-exposes single port which is hardcoded to be 6379.
+Dbaas service is realized either with single container running redis database
+or with HA deployment implemented by a redis sentinel solution.
+Standalone dbaas database is configured to be non-persistent and
+non-redundant. HA dbaas provides redundancy but it is also configured to be
+non-persistent.
 
 After dbaas service is installed, environment variables **DBAAS_SERVICE_HOST**
-and **DBAAS_SERVICE_PORT** are exposed to application containers. SDL library
-will automatically use these environment variables.
+and **DBAAS_SERVICE_PORT** are exposed to application containers. In the case
+of HA dbaas deployment environment variables **DBAAS_MASTER_NAME** and
+**DBAAS_SERVICE_SENTINEL_PORT** are also exposed to application containers.
+SDL library will automatically use these environment variables.
 
 The service is installed via helm by using dbaas-service chart. Modify the
 values accordingly before installation (repository location, image name, ..)

@@ -93,7 +93,7 @@ func (s *SdlInstance) setNamespaceToKeys(pairs ...interface{}) []interface{} {
 
 func (s *SdlInstance) Set(pairs ...interface{}) error {
 	keyAndData := s.setNamespaceToKeys(pairs...)
-	err := s.client.MSet(keyAndData...).Err()
+	err := s.client.MSet(s.client.Context(), keyAndData...).Err()
 	return err
 }
 
@@ -102,7 +102,7 @@ func (s *SdlInstance) Get(keys []string) (map[string]interface{}, error) {
 	for _, v := range keys {
 		keysWithNs = append(keysWithNs, s.nsPrefix+v)
 	}
-	val, err := s.client.MGet(keysWithNs...).Result()
+	val, err := s.client.MGet(s.client.Context(), keysWithNs...).Result()
 	m := make(map[string]interface{})
 	if err != nil {
 		return m, err
