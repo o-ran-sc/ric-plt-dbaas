@@ -30,9 +30,9 @@ This document provides the release notes of the dbaas.
 Version history
 ---------------
 
-[0.4.1] - 2020-06-17
+[0.4.1] - 2020-12-11
 
-* Upgrade base image to bldr-alpine3:12-a3.11 in Redis docker build
+* Upgrade base image to bldr-alpine3-go:2.0.0 in Redis docker build
 
 [0.4.0] - 2020-04-23
 

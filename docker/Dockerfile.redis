@@ -25,7 +25,7 @@
 #
 # NOTE: The valgrind false positive problem could also potentially be solved
 # with valgrind suppression files but that kind of approach may be fragile.
-FROM ubuntu:19.10 as cpputest-build
+FROM ubuntu:18.04 as cpputest-build
 
 RUN apt update && \
     apt install -y \
@@ -60,7 +60,7 @@ RUN ./autogen.sh && \
     ./configure --disable-unit-test-memcheck && \
     make test
 
-FROM nexus3.o-ran-sc.org:10004/o-ran-sc/bldr-alpine3:12-a3.11 as build-env
+FROM nexus3.o-ran-sc.org:10002/o-ran-sc/bldr-alpine3-go:2.0.0 as build-env
 
 RUN apk add cpputest
 COPY ./redismodule /redismodule
