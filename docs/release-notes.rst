@@ -30,6 +30,11 @@ This document provides the release notes of the dbaas.
 Version history
 ---------------
 
+[0.5.1] - 2021-02-25
+
+* Upgrade SSL version to 1.1.1j-r0 to fix possible SSL security vulnerability.
+* Fix DBAAS testing application compile issue.
+
 [0.5.0] - 2020-12-11
 
 * Upgrade DBAAS container's base Redis image to redis:5.0.9-alpine3.11.

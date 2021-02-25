@@ -25,8 +25,8 @@ RUN apt-get update && \
     apt install -y redis-tools && \
     apt install -y git && \
     apt install -y wget && \
-    wget https://dl.google.com/go/go1.15.6.linux-amd64.tar.gz && \
-    tar -xvf go1.15.6.linux-amd64.tar.gz && \
+    wget https://golang.org/dl/go1.12.17.linux-amd64.tar.gz && \
+    tar -xvf go1.12.17.linux-amd64.tar.gz && \
     mv go /usr/local && \
     apt-get clean
 
@@ -35,10 +35,11 @@ COPY ./testapplication ./testapplication
 
 # Install go testapplication
 RUN export GOROOT=/usr/local/go && \
-    export GOPATH=$HOME/Projects/Proj1 && \
-    export PATH=$GOPATH/bin:$GOROOT/bin:$PATH && \
+    export PATH=$GOROOT/bin:$PATH && \
+    export GO111MODULE=on && \
     go get github.com/go-redis/redis && \
-    go build /testapplication/go/testapp.go
+    cd /testapplication/go/ && \
+    go build ./...
 
 # Keep the container alive
 ENTRYPOINT ["tail", "-f", "/dev/null"]

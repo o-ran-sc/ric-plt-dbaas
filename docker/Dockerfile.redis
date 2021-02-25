@@ -73,6 +73,7 @@ RUN ./autogen.sh && \
 
 FROM redis:5.0.9-alpine3.11 as build
 
+RUN apk add --upgrade openssl
 RUN apk add curl
 COPY --from=build-env /usr/local/libexec/redismodule/libredismodule.so /usr/local/libexec/redismodule/libredismodule.so
 WORKDIR /data

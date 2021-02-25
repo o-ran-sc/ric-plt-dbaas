@@ -21,8 +21,8 @@
 package main
 
 import (
-	"./sdl"
 	"fmt"
+	"testapp/sdl"
 )
 
 func main() {
@@ -69,6 +69,11 @@ func main() {
 
 	mix2 := [4]interface{}{"mix3", "data3", "mix4", 4}
 	err = sdl1.Set(mix2)
+	if err != nil {
+		fmt.Printf("unable to write to DB\n")
+	}
+
+	_, err = sdl1.SetIf("key1", "data1", "data2")
 	if err != nil {
 		fmt.Printf("unable to write to DB\n")
 	}

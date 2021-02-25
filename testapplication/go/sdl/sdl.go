@@ -61,11 +61,11 @@ func Create(nameSpace string) *SdlInstance {
 
 func (s *SdlInstance) CheckRedisModuleExtensionCommands() {
 	var moduleError bool
-	commands, err := s.client.Command(s.client.Context()).Result()
+	commands, err := s.client.Command().Result()
 	if err == nil {
 		redisModuleCommands := []string{
-			"setie", "delie", "setiepub", "setnxpub",
-			"msetmpub", "delmpub",
+			"setie", "delie", "setiepub", "deliepub",
+			"setnxpub", "msetmpub", "delmpub",
 		}
 		for _, v := range redisModuleCommands {
 			_, ok := commands[v]
@@ -117,9 +117,22 @@ func (s *SdlInstance) setNamespaceToKeys(pairs ...interface{}) []interface{} {
 	return retVal
 }
 
+func checkResultAndError(result interface{}, err error) (bool, error) {
+	if err != nil {
+		if err == redis.Nil {
+			return false, nil
+		}
+		return false, err
+	}
+	if result == "OK" {
+		return true, nil
+	}
+	return false, nil
+}
+
 func (s *SdlInstance) Set(pairs ...interface{}) error {
 	keyAndData := s.setNamespaceToKeys(pairs...)
-	err := s.client.MSet(s.client.Context(), keyAndData...).Err()
+	err := s.client.MSet(keyAndData...).Err()
 	return err
 }
 
@@ -128,7 +141,7 @@ func (s *SdlInstance) Get(keys []string) (map[string]interface{}, error) {
 	for _, v := range keys {
 		keysWithNs = append(keysWithNs, s.nsPrefix+v)
 	}
-	val, err := s.client.MGet(s.client.Context(), keysWithNs...).Result()
+	val, err := s.client.MGet(keysWithNs...).Result()
 	m := make(map[string]interface{})
 	if err != nil {
 		return m, err
@@ -139,8 +152,8 @@ func (s *SdlInstance) Get(keys []string) (map[string]interface{}, error) {
 	return m, err
 }
 
-func (s *SdlInstance) SetIf(key string, oldData, newData interface{}) {
-	panic("SetIf not implemented\n")
+func (s *SdlInstance) SetIf(key string, oldData, newData interface{}) (bool, error) {
+	return checkResultAndError(s.client.Do("SETIE", key, newData, oldData).Result())
 }
 
 func (s *SdlInstance) SetIfiNotExists(key string, data interface{}) {
