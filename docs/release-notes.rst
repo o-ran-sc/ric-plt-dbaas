@@ -30,6 +30,10 @@ This document provides the release notes of the dbaas.
 Version history
 ---------------
 
+[0.5.2] - 2021-06-04
+
+* Upgrade packages to fix possible security vulnerability reported in Alpine base image.
+
 [0.5.1] - 2021-02-25
 
 * Upgrade SSL version to 1.1.1j-r0 to fix possible SSL security vulnerability.
