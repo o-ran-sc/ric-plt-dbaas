@@ -30,6 +30,10 @@ This document provides the release notes of the dbaas.
 Version history
 ---------------
 
+[0.5.3] - 2021-08-26
+
+* Upgrade apk-tools to fix security vulnerabilities CVE-2021-36159 and CVE-2021-30139.
+
 [0.5.2] - 2021-06-04
 
 * Upgrade packages to fix possible security vulnerability reported in Alpine base image.
