@@ -73,7 +73,12 @@ RUN ./autogen.sh && \
 
 FROM redis:5.0.9-alpine3.11 as build
 
-RUN apk --update add --upgrade --no-cache openssl ssl_client musl-utils busybox
+RUN apk --update add --upgrade --no-cache \
+    apk-tools \
+    openssl \
+    ssl_client \
+    musl-utils \
+    busybox
 
 COPY --from=build-env /usr/local/libexec/redismodule/libredismodule.so /usr/local/libexec/redismodule/libredismodule.so
 WORKDIR /data
