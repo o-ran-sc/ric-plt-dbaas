@@ -1,10 +1,10 @@
 ---
 distribution_type: container
-container_release_tag: 0.5.2
+container_release_tag: 0.5.3
 container_pull_registry: nexus3.o-ran-sc.org:10004
 container_push_registry: nexus3.o-ran-sc.org:10002
 project: ric-plt/dbaas
-ref: 1194d3a6f576ae4c998abec2e7dce968fa56a481
+ref: d4949b48aebbd2ab7b86c77cd9c2d6afd1ab70f0
 containers:
     - name: ric-plt-dbaas
-      version: 0.5.2
+      version: 0.5.3
