@@ -67,6 +67,23 @@
       "message": "recheck",
       "revId": "c7c40508b0d73bd4a3f0b2fbdc7c37a0d0fb3d60",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55a2b777_3b820037",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000002
+      },
+      "writtenOn": "2021-09-15T04:14:56Z",
+      "side": 1,
+      "message": "Thanks Eric.\nReview change looks good to me also.",
+      "revId": "c7c40508b0d73bd4a3f0b2fbdc7c37a0d0fb3d60",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53"
     }
   ]
 }
