@@ -70,6 +70,11 @@ RUN ./autogen.sh && \
     make test && \
     make install
 
+# Build sdlcli -tool
+RUN cd /go/src && \
+    git clone "https://gerrit.o-ran-sc.org/r/ric-plt/sdlgo" && \
+    cd sdlgo && \
+    go build -v -o /usr/local/bin/sdlcli cmd/sdlcli/main.go
 
 FROM redis:5.0.9-alpine3.11 as build
 
@@ -81,4 +86,5 @@ RUN apk --update add --upgrade --no-cache \
     busybox
 
 COPY --from=build-env /usr/local/libexec/redismodule/libredismodule.so /usr/local/libexec/redismodule/libredismodule.so
+COPY --from=build-env /usr/local/bin/sdlcli /usr/local/bin/
 WORKDIR /data

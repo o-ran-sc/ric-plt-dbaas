@@ -30,6 +30,10 @@ This document provides the release notes of the dbaas.
 Version history
 ---------------
 
+[0.5.4] - 2021-10-26
+
+* Add sdlcli -tool for troubleshooting SDL and Database problems
+
 [0.5.3] - 2021-08-26
 
 * Upgrade apk-tools to fix security vulnerabilities CVE-2021-36159 and CVE-2021-30139.
