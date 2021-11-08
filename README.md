@@ -124,3 +124,9 @@ PONG
 
 ## License
 This project is licensed under the Apache License 2.0 - see the [LICENSE.md](LICENSE.md) file for details
+
+
+## Building dbaas imaged on arm64-based instance
+docker build --file docker/Dockerfile.redis.arm64 --tag redis-standalone .
+
+Note: arm64-based bldr-alpine3-go:2.0.0 docker image is required. It can be built from dev repo https://gerrit.o-ran-sc.org/r/admin/repos/it/dev
