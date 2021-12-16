@@ -38,11 +38,12 @@ Standalone dbaas database is configured to be non-persistent and
 non-redundant. HA dbaas provides redundancy but it is also configured to be
 non-persistent.
 
-After dbaas service is installed, environment variables **DBAAS_SERVICE_HOST**
-and **DBAAS_SERVICE_PORT** are exposed to application containers. In the case
-of HA dbaas deployment environment variables **DBAAS_MASTER_NAME** and
-**DBAAS_SERVICE_SENTINEL_PORT** are also exposed to application containers.
-SDL library will automatically use these environment variables.
+After dbaas service is installed, environment variables **DBAAS_SERVICE_HOST**,
+**DBAAS_SERVICE_PORT** and **DBAAS_NODE_COUNT** are exposed to application
+containers. In the case of HA dbaas deployment also environment variables
+**DBAAS_MASTER_NAME** and **DBAAS_SERVICE_SENTINEL_PORT** are exposed to
+application containers. SDL library will automatically use these environment
+variables.
 
 The service is installed via helm by using dbaas-service chart. Modify the
 values accordingly before installation (repository location, image name, ..)
@@ -50,6 +51,13 @@ values accordingly before installation (repository location, image name, ..)
 ```
 helm install ./dbaas-service
 ```
+
+### SDLCLI
+There is a pre-installed `sdlcli` tool in DBaaS container. With this tool user
+can see statistics of database backend (Redis), check healthiness of DBaaS
+database backend, list database keys and get and set values into database.
+To get more information about available commands and how to use them, please
+check help instructions: `sdlcli --help`.
 
 ### DBaaS test application
 
@@ -90,7 +98,7 @@ The environment variables for database backend should be set:
 >>printenv
 DBAAS_SERVICE_HOST=10.108.103.51
 DBAAS_SERVICE_PORT=6379
-
+DBAAS_NODE_COUNT=1
 
 Go test application using preliminary go SDL-API should be able to perform reads and writes:
 
