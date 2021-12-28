@@ -30,6 +30,10 @@ This document provides the release notes of the dbaas.
 Version history
 ---------------
 
+[0.5.6] - 2021-12-28
+
+* Build a new DBAAS Docker image to have the latest version (0.9.2) of the sdlcli -tool
+
 [0.5.5] - 2021-12-16
 
 * Build a new DBAAS Docker image to take the latest version (0.9.0) of the sdlcli -tool in
