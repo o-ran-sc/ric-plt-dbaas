@@ -30,6 +30,10 @@ This document provides the release notes of the dbaas.
 Version history
 ---------------
 
+[0.6.0] - 2022-01-20
+
+* Bump Redis base image to 6.2.6, because version 5 is going soon out of maintenance
+
 [0.5.7] - 2021-12-30
 
 * Build a new DBAAS Docker image to have the latest version (0.9.3) of the sdlcli -tool
