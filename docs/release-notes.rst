@@ -1,6 +1,6 @@
 ..
 ..  Copyright (c) 2019 AT&T Intellectual Property.
-..  Copyright (c) 2019 Nokia.
+..  Copyright (c) 2019-2022 Nokia.
 ..
 ..  Licensed under the Creative Commons Attribution 4.0 International
 ..  Public License (the "License"); you may not use this file except
@@ -29,6 +29,10 @@ This document provides the release notes of the dbaas.
 
 Version history
 ---------------
+
+[0.6.1] - 2022-03-21
+
+* Upgrade v0.10.0 SDLGO tag for sdlcli and make DBAAS 0.6.1 tag
 
 [0.6.0] - 2022-01-20
 
