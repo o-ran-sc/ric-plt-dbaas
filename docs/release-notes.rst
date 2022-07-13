@@ -30,6 +30,10 @@ This document provides the release notes of the dbaas.
 Version history
 ---------------
 
+[0.6.2] - 2022-07-14
+
+* Bump to Redis 6.2.7 to fix security vulnerabilities reported in Redis base image 6.2.6
+
 [0.6.1] - 2022-03-21
 
 * Upgrade v0.10.0 SDLGO tag for sdlcli and make DBAAS 0.6.1 tag
