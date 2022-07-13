@@ -78,7 +78,7 @@ RUN cd /go/src && \
     cd sdlgo && \
     go build -v -o /usr/local/bin/sdlcli cmd/sdlcli/main.go
 
-FROM redis:6.2.6-alpine3.15 as build
+FROM redis:6.2.7-alpine3.15 as build
 
 RUN apk --update add --upgrade --no-cache \
     apk-tools \
