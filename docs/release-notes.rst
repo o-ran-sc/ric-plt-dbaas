@@ -30,6 +30,10 @@ This document provides the release notes of the dbaas.
 Version history
 ---------------
 
+[0.6.4] - 2023-12-13
+
+* Bump to Redis 6.2.14 
+
 [0.6.3] - 2023-05-29
 
 * Bump to Redis 6.2.12 to fix Local Denial of Service Vulnerability
